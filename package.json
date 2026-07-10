@@ -1,0 +1,22 @@
+{
+  "name": "super-bennet",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/three": "^0.185.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "phoenix": "github:openchanter/phoenix",
+    "planck": "^1.5.0",
+    "three": "^0.185.1",
+    "vite": "^8.1.4"
+  }
+}
