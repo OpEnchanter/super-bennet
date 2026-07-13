@@ -1,2 +1,2 @@
 bun run build
-cp assets/* dist/assets
+cp -r assets/* dist/assets
