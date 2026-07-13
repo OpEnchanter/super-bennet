@@ -1,0 +1,93 @@
+{
+    "tilesets": {
+        "brick_grass": [
+            ["brick/grass/brick-grass-top-left", "brick/grass/brick-grass", "brick/grass/brick-grass-top-right"],
+            ["brick/brick", "brick/brick", "brick/brick"],
+            ["brick/brick", "brick/brick", "brick/brick"]
+        ],
+        "brick_pit": [
+            ["brick/brick-dark-half", "brick/brick-dark-half", "brick/brick-dark-half"],
+            ["brick/brick-dark", "brick/brick-dark", "brick/brick-dark"],
+            ["brick/brick-dark", "brick/brick-dark", "brick/brick-dark"]
+        ],
+        "stone_brick_grass": [
+            ["stone-bricks/grass/stone-bricks-grass-top-left", "stone-bricks/grass/stone-bricks-grass", "stone-bricks/grass/stone-bricks-grass-top-right"],
+            ["stone-bricks/stone-bricks", "stone-bricks/stone-bricks", "stone-bricks/stone-bricks"],
+            ["stone-bricks/stone-bricks", "stone-bricks/stone-bricks", "stone-bricks/stone-bricks"]
+        ],
+        "stone_brick_pit": [
+            ["stone-bricks/stone-bricks-dark-half", "stone-bricks/stone-bricks-dark-half", "stone-bricks/stone-bricks-dark-half"],
+            ["stone-bricks/stone-bricks-dark", "stone-bricks/stone-bricks-dark", "stone-bricks/stone-bricks-dark"],
+            ["stone-bricks/stone-bricks-dark", "stone-bricks/stone-bricks-dark", "stone-bricks/stone-bricks-dark"]
+        ]
+    },
+    "tiles": {
+        "static": [
+            "null",
+            "brick/brick",
+            "brick/brick-dark",
+            "brick/grass/brick-grass",
+            "brick/grass/brick-grass-top-left",
+            "brick/grass/brick-grass-top-right",
+            "brick/brick-dark-half",
+            "stone-bricks/stone-bricks",
+            "stone-bricks/stone-bricks-dark",
+            "stone-bricks/grass/stone-bricks-grass",
+            "stone-bricks/grass/stone-bricks-grass-top-left",
+            "stone-bricks/grass/stone-bricks-grass-top-right",
+            "stone-bricks/stone-bricks-dark-half"
+        ],
+        "dynamic": {
+            "sign": {"spriteName":"props/sign", "scale":{"x":16, "y":16}, "objectDataShape":{}},
+            "flower_red": {"spriteName":"props/flower-red", "scale":{"x":16, "y":16}, "objectDataShape":{}},
+            "flower_blue": {"spriteName":"props/flower-blue", "scale":{"x":16, "y":16}, "objectDataShape":{}},
+            "lucky_block": {"spriteName":"lucky", "scale":{"x":16, "y":16}, "objectDataShape":{"contents":""}},
+            "title": {"spriteName":"title", "scale":{"x":256, "y":128}, "objectDataShape":{}},
+            "text_trigger": {"spriteName":"text-trigger", "scale":{"x":16, "y":16}, "objectDataShape":{"text":""}},
+            "checkpoint": {"spriteName":"flag/1", "scale":{"x":16, "y":16}, "objectDataShape":{}},
+            "next_level_trigger": {"spriteName":"next-level-trigger", "scale":{"x":16, "y":16}, "objectDataShape":{}},
+            "moving_platform": {"spriteName":"moving-platform", "scale":{"x":48, "y":16}, "objectDataShape":{"x_translation":0, "y_translation":0, "speed":1}},
+            "enemy": {"spriteName":"enemy/animation/walking/1", "scale":{"x":16, "y":16}, "objectDataShape":{}},
+            "balloon": {"spriteName":"balloon/1", "scale":{"x":96, "y":128}, "objectDataShape":{}},
+            "coin": {"spriteName":"coin/1", "scale":{"x":16, "y":16}, "objectDataShape":{}}
+        }
+    },
+    "translation": {
+        "null": "Invisible",
+        "brick/brick": "Bricks",
+        "brick/brick-dark": "Dark Bricks",
+        "brick/grass/brick-grass": "Grass Bricks",
+        "brick/grass/brick-grass-top-left": "Grass Bricks TL",
+        "brick/grass/brick-grass-top-right": "Grass Bricks TR",
+        "brick/brick-dark-half": "Brick Dark Half",
+        "stone-bricks/stone-bricks": "Stone Bricks",
+        "stone-bricks/stone-bricks-dark": "Dark Stone Bricks",
+        "stone-bricks/grass/stone-bricks-grass": "Grass Stone Bricks",
+        "stone-bricks/grass/stone-bricks-grass-top-left": "Grass Stone Bricks TL",
+        "stone-bricks/grass/stone-bricks-grass-top-right": "Grass Stone Bricks TR",
+        "stone-bricks/stone-bricks-dark-half": "Stone Bricks Dark Half",
+
+        "brick_grass": "Grass Bricks",
+        "brick_pit": "Brick Pit",
+        "stone_brick_grass": "Stone Bricks Grass",
+        "stone_brick_pit": "Stone Brick Pit",
+        "moving_platform": "Moving Platform",
+
+        "lucky_block": "Lucky Block",
+        "title": "Title",
+        "text_trigger": "Text Trigger",
+        "checkpoint": "Checkpoint",
+        "next_level_trigger": "Next Level Trigger",
+        "sign": "Sign",
+        "flower_red": "Red Flower",
+        "flower_blue": "Blue Flower",
+        "enemy": "Enemy",
+        "balloon": "Hot Air Balloon",
+        "coin": "Coin"
+    },
+    "editor_textures": {
+        "null": "editor/null",
+        "text-trigger": "editor/text-trigger",
+        "next-level-trigger": "editor/next-level-trigger"
+    }
+}
