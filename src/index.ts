@@ -4,7 +4,8 @@ import * as THREE from "three";
 
 const app: Phoenix.App = new Phoenix.App({
     renderScale: new Phoenix.Vector2(1920, 1080),
-    clearColor: 0x4aeddc
+    clearColor: 0x4aeddc,
+    zoom: 1/2
 })
 
 app.addScene("game", new GameScene.Scene())
