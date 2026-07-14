@@ -31,7 +31,7 @@ jobs:
           bun-version: latest
 
       - name: Install Bun Dependencies
-        run: bun install --forzen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build
         run: ./build.sh
