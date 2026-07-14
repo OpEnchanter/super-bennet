@@ -58,11 +58,23 @@ class PlayerController extends Phoenix.Component {
         if (Math.abs(this.rigidbody.body!.getLinearVelocity().x) > 0) {
             this.sprite.setAnimation("running");
         } else {
-            this.sprite.setAnimation("standing")
+            this.sprite.setAnimation("standing");
         }
 
-        this.transform.globalPosition.x = Math.floor(this.transform.globalPosition.x / 4) * 4
-        this.transform.globalPosition.y = Math.floor(this.transform.globalPosition.y / 4) * 4
+        if (this.rigidbody.body!.getLinearVelocity().y > 0.1) {
+            this.sprite.setAnimation("jumping");
+        } else if (this.rigidbody.body!.getLinearVelocity().y < -0.1) {
+            this.sprite.setAnimation("falling");
+        }
+
+        if (Math.sign(this.rigidbody.body!.getLinearVelocity().x) == -1) {
+            this.transform.scale.x = -24
+        } else {
+            this.transform.scale.x = 24
+        }
+
+        this.transform.globalPosition.x = Math.floor(this.transform.globalPosition.x / 2) * 2
+        this.transform.globalPosition.y = Math.floor(this.transform.globalPosition.y / 2) * 2
     }
 }
 
@@ -102,19 +114,20 @@ export class Scene extends Phoenix.Scene {
     override onLoad(app: Phoenix.App): void {
         const animFrames = {
             "standing": ["assets/bennet/standing.png"],
-            "running": ["assets/bennet/animation/run/1.png", "assets/bennet/animation/run/2.png"]
+            "running": ["assets/bennet/animation/run/1.png", "assets/bennet/animation/run/2.png"],
+            "jumping": ["assets/bennet/animation/jump/jump.png"],
+            "falling": ["assets/bennet/animation/jump/fall.png"],
         }
         const anim = new Phoenix.AnimatedSprite(animFrames, 15);
         console.log(Object.keys(animFrames)[0])
 
         const player = app.createObject(
+            anim,
             new Phoenix.Transform(
                 new Phoenix.Vector2(0, 0),
                 0,
-                new Phoenix.Vector2(-24, 32)
+                new Phoenix.Vector2(24, 32)
             ),
-
-            anim,
             
             new Phoenix.Renderer(0),
 
