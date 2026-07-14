@@ -1,6 +1,6 @@
 import * as Phoenix from "phoenix";
-import * as GameScene from "./scenes/game.ts";
-import * as TitleScene from "./scenes/title.ts";
+import * as GameScene from "./scenes/game";
+import * as TitleScene from "./scenes/title";
 import * as THREE from "three";
 import * as pl from "planck";
 
