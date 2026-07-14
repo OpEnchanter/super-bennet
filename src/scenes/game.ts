@@ -25,11 +25,11 @@ class PlayerController extends Phoenix.Component {
     public override onUpdate(): void {
         if (!this.rigidbody || !this.transform || !this.sprite) return;
 
-        const movementSpeed = this.parent?.isTriggered ? this.moveSpeed : this.airMoveSpeed;
+        const movementSpeed = this.parent?.isColliding ? this.moveSpeed : this.airMoveSpeed;
         
         if (this.parent?.app.getKey("a")) {
             this.rigidbody.body?.applyLinearImpulse(
-                {x: -movementSpeed, y: 0},
+                {x: -movementSpeed, y: 1},
                 {
                     x: this.rigidbody.body.getPosition().x,
                     y: this.rigidbody.body.getPosition().y
@@ -37,7 +37,7 @@ class PlayerController extends Phoenix.Component {
             )
         } else if (this.parent?.app.getKey("d")) {
             this.rigidbody.body?.applyLinearImpulse(
-                {x: movementSpeed, y: 0},
+                {x: movementSpeed, y: 1},
                 {
                     x: this.rigidbody.body.getPosition().x,
                     y: this.rigidbody.body.getPosition().y
@@ -137,7 +137,7 @@ export class Scene extends Phoenix.Scene {
             ),
 
             new Phoenix.BoxCollider(
-                new Phoenix.Vector2(24, 4), true, new Phoenix.Vector2(0, -35)
+                new Phoenix.Vector2(2, 4), true, new Phoenix.Vector2(0, -35)
             ),
 
             new Phoenix.Rigidbody(30, 20, false, true),
@@ -162,11 +162,11 @@ export class Scene extends Phoenix.Scene {
         loader.loadFromJson({
             objects: [
                 {
-                    type: "tile",
+                    type: "tileset",
                     data: {
                         position: {x:0, y:-1},
-                        scale: {x: 1000, y:10},
-                        sprite: "assets/tiles/brick/brick.png",
+                        scale: {x: 4, y:3},
+                        sprite: "grass_bricks",
                         hasCollision: true
                     }
                 }
