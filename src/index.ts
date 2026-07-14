@@ -1,5 +1,6 @@
 import * as Phoenix from "phoenix";
 import * as GameScene from "./scenes/game.ts";
+import * as TitleScene from "./scenes/title.ts";
 import * as THREE from "three";
 import * as pl from "planck";
 
@@ -12,4 +13,12 @@ const app: Phoenix.App = new Phoenix.App({
 app.plWorld.setGravity(pl.Vec2(0, -16))
 
 app.addScene("game", new GameScene.Scene())
-app.loadScene("game")
+app.addScene("title", new TitleScene.Scene())
+
+document.addEventListener("keydown", (e) => {
+    if (e.key == "h") {
+        app.loadScene("game")
+    }
+})
+
+app.loadScene("title")

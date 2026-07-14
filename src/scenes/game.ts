@@ -67,10 +67,12 @@ class PlayerController extends Phoenix.Component {
             this.sprite.setAnimation("falling");
         }
 
-        if (Math.sign(this.rigidbody.body!.getLinearVelocity().x) == -1) {
-            this.transform.scale.x = -24
-        } else {
+        if (this.rigidbody.body!.getLinearVelocity().x > 0.1) {
             this.transform.scale.x = 24
+        }
+        
+        if (this.rigidbody.body!.getLinearVelocity().x < -0.1) {
+            this.transform.scale.x = -24
         }
 
         this.transform.globalPosition.x = Math.floor(this.transform.globalPosition.x / 2) * 2
@@ -119,7 +121,6 @@ export class Scene extends Phoenix.Scene {
             "falling": ["assets/bennet/animation/jump/fall.png"],
         }
         const anim = new Phoenix.AnimatedSprite(animFrames, 15);
-        console.log(Object.keys(animFrames)[0])
 
         const player = app.createObject(
             anim,
