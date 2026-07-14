@@ -1,0 +1,15 @@
+{
+    "tiles": {
+        "brick": "assets/tiles/brick/brick.png"
+    },
+    "tileSets": {
+        "grass_bricks": [
+            ["assets/tiles/brick/grass/brick-grass-top-left.png", "assets/tiles/brick/grass/brick-grass.png", "assets/tiles/brick/grass/brick-grass-top-right.png"],
+            ["assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png"],
+            ["assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png"]
+        ]
+    },
+    "complexTiles": {
+
+    }
+}
