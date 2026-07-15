@@ -1,4 +1,5 @@
 import * as Phoenix from "phoenix";
+import * as pl from "planck";
 import TileConfig from "./tileset.json";
 
 type TileSetSchema = string[][]
@@ -50,11 +51,17 @@ type JSONWorld = {
     objects: Array<LoadableObject>
 }
 
+type ObjectBounds = {
+    position: {x:number, y:number},
+    scale: {x:number, y:number}
+}
+
 const tileConfig = TileConfig as TileConfigSchema;
 
 export class LevelLoader {
     app: Phoenix.App;
     levelRootObject: Phoenix.GameObject;
+    levelBody: pl.Body;
 
     constructor(app: Phoenix.App) {
         this.app = app;
@@ -62,10 +69,15 @@ export class LevelLoader {
             new Phoenix.Transform(
                 new Phoenix.Vector2(0, 0),
                 0,
-                new Phoenix.Vector2(1, 1)
+                new Phoenix.Vector2(0, 0)
             )
         )
         this.app.addObject(this.levelRootObject);
+
+        this.levelBody = app.plWorld.createBody({
+            type: "static",
+            position: {x:0, y:0}
+        })
     }
 
     public unload() {
@@ -79,11 +91,23 @@ export class LevelLoader {
     }
 
     public loadFromJson(jsonObject: JSONWorld) {
+        let tileLookupMap = new Map();
+        let objectBounds: ObjectBounds[] = [];
+
+        // Rendering object creation
         for (const object of jsonObject.objects) {
             if (object.type === "tile") {
                 const tileData = object.data as TileData;
-
                 const positions: Array<Phoenix.Vector2> = [];
+
+                const bounds: ObjectBounds = {
+                    position: tileData.position,
+                    scale: tileData.scale
+                };
+
+                if (tileData.hasCollision) {
+                    objectBounds.push(bounds);
+                }
 
                 for (let x = 0; x < tileData.scale.x; x++) {
                     for (let y = 0; y < tileData.scale.y; y++) {
@@ -91,6 +115,7 @@ export class LevelLoader {
                             x*32,
                             -y*32
                         ))
+                        if (tileData.hasCollision) tileLookupMap.set(`${x+tileData.position.x},${y+tileData.position.y}`, bounds)
                     }
                 }
 
@@ -103,16 +128,6 @@ export class LevelLoader {
                     new Phoenix.Sprite(tileConfig.tiles[tileData.sprite] ?? "assets/tiles/editor/null.png"),
                     new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                 );
-
-                if (tileData.hasCollision) {
-                    tileObject.addComponent(
-                        new Phoenix.BoxCollider(
-                            new Phoenix.Vector2(tileData.scale.x * 32, tileData.scale.y * 32),
-                            false,
-                            new Phoenix.Vector2(Math.max(0, tileData.scale.x-1) * 32, -Math.max(0, tileData.scale.y - 1) * 32)
-                        )
-                    );
-                };
 
                 this.levelRootObject.addChild(tileObject);
             } else if (object.type === "tileset") {
@@ -144,10 +159,6 @@ export class LevelLoader {
                         new Phoenix.Renderer(0)
                     )
 
-                    if (tileData.hasCollision) object.addComponent(
-                        new Phoenix.BoxCollider(new Phoenix.Vector2(32, 32))
-                    )
-
                     this.levelRootObject.addChild(object)
                 }
 
@@ -169,14 +180,6 @@ export class LevelLoader {
                             ),
                             new Phoenix.Sprite(tileSet[0]![1]!),
                             new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        if (tileData.hasCollision) object.addComponent(
-                            new Phoenix.BoxCollider(
-                                new Phoenix.Vector2(edgeLength*32, 32),
-                                false,
-                                new Phoenix.Vector2(Math.max(0, edgeLength) * 32, 0)
-                            )
                         )
 
                         this.levelRootObject.addChild(object);
@@ -204,14 +207,6 @@ export class LevelLoader {
                             new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                         )
 
-                        if (tileData.hasCollision) object.addComponent(
-                            new Phoenix.BoxCollider(
-                                new Phoenix.Vector2(edgeLength*32, 32),
-                                false,
-                                new Phoenix.Vector2(Math.max(0, edgeLength) * 32, 0)
-                            )
-                        )
-
                         this.levelRootObject.addChild(object);
                     }
                 }
@@ -233,14 +228,6 @@ export class LevelLoader {
                             ),
                             new Phoenix.Sprite(tileSet[1]![0]!),
                             new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        if (tileData.hasCollision) object.addComponent(
-                            new Phoenix.BoxCollider(
-                                new Phoenix.Vector2(edgeLength*32, 32),
-                                false,
-                                new Phoenix.Vector2(Math.max(0, edgeLength) * 32, 0)
-                            )
                         )
 
                         this.levelRootObject.addChild(object);
@@ -266,14 +253,6 @@ export class LevelLoader {
                             ),
                             new Phoenix.Sprite(tileSet[1]![0]!),
                             new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        if (tileData.hasCollision) object.addComponent(
-                            new Phoenix.BoxCollider(
-                                new Phoenix.Vector2(edgeLength*32, 32),
-                                false,
-                                new Phoenix.Vector2(Math.max(0, edgeLength) * 32, 0)
-                            )
                         )
 
                         this.levelRootObject.addChild(object);
@@ -310,16 +289,74 @@ export class LevelLoader {
                     this.levelRootObject.addChild(object);
                 }
 
+                if (tileData.hasCollision) {
+                    const bounds: ObjectBounds = {
+                        position: tileData.position,
+                        scale: tileData.scale
+                    };
+                    objectBounds.push(bounds);
 
-                for (let x = 0; x < tileData.scale.x; x++) {
-                    for (let y = 0; y < tileData.scale.y; y++) {
-                        positions.push(new Phoenix.Vector2(
-                            x*32,
-                            -y*32
-                        ))
+                    for (let x = 0; x < bounds.scale.x; x++) {
+                        for (let y = 0; y < bounds.scale.y; y++) {
+                            tileLookupMap.set(`${x+tileData.position.x},${y+tileData.position.y}`, bounds)
+                        }
                     }
                 }
             }
+        }
+
+        // Object collider creation
+        for (const bounds of objectBounds) {
+
+            // Top
+            const topEdge = pl.Edge(
+                {x: bounds.position.x, y: bounds.position.y + 0.5},
+                {x: bounds.position.x + bounds.scale.x, y: bounds.position.y + 0.5}
+            )
+
+            const topLeftTile = `${bounds.position.x-1},${bounds.position.y}`
+            const topRightTile = `${bounds.position.x+bounds.scale.x+1},${bounds.position.y}`
+
+            const topLeftObject = tileLookupMap.get(topLeftTile);
+            const topRightObject = tileLookupMap.get(topRightTile);
+
+            if (topLeftObject && topLeftObject.position.y === bounds.position.y) {
+                topEdge.setPrevVertex({
+                    x: topLeftObject.position.x,
+                    y: topLeftObject.position.y
+                })
+            }
+
+            if (topRightObject && topRightObject.position.y === bounds.position.y) {
+                topEdge.setNextVertex({
+                    x: topRightObject.position.x + (topRightObject.scale.x - 1),
+                    y: topRightObject.position.y
+                })
+            }
+
+            // Bottom
+            const bottomEdge = pl.Edge(
+                {x: bounds.position.x, y: bounds.position.y + 0.5 - bounds.scale.y},
+                {x: bounds.position.x + bounds.scale.x, y: bounds.position.y + 0.5 - bounds.scale.y}
+            )
+
+            // Left
+            const leftEdge = pl.Edge(
+                {x: bounds.position.x - 0.5, y: bounds.position.y + 0.5},
+                {x: bounds.position.x - 0.5, y: bounds.position.y + 0.5 - bounds.scale.y}
+            )
+    
+
+            // Right
+            const rightEdge = pl.Edge(
+                {x: bounds.position.x + bounds.scale.x - 0.5, y: bounds.position.y + 0.5},
+                {x: bounds.position.x + bounds.scale.x - 0.5, y: bounds.position.y + 0.5 - bounds.scale.y}
+            )
+
+            this.levelBody.createFixture({shape: topEdge})
+            this.levelBody.createFixture({shape: bottomEdge})
+            this.levelBody.createFixture({shape: leftEdge})
+            this.levelBody.createFixture({shape: rightEdge})
         }
     }
 }

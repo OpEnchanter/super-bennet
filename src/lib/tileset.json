@@ -1,6 +1,7 @@
 {
     "tiles": {
-        "brick": "assets/tiles/brick/brick.png"
+        "brick": "assets/tiles/brick/brick.png",
+        "stone_brick": "assets/tiles/stone-bricks/stone-bricks.png"
     },
     "tileSets": {
         "grass_bricks": [

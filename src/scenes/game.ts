@@ -25,27 +25,47 @@ class PlayerController extends Phoenix.Component {
     public override onUpdate(): void {
         if (!this.rigidbody || !this.transform || !this.sprite) return;
 
-        const movementSpeed = this.parent?.isColliding ? this.moveSpeed : this.airMoveSpeed;
+        const feetPos = {
+            x: this.transform.globalPosition.x / 32,
+            y: (this.transform.globalPosition.y) / 32
+        }
+
+        let grounded = false;
+        
+        this.parent?.app.plWorld.rayCast(feetPos, {
+            x: feetPos.x,
+            y: feetPos.y - 0.6
+        }, (fixture, point, normal, fraction) => {
+
+            console.log(fixture.getType())
+
+            if (fixture.getBody() == this.rigidbody?.body) {
+                return 1;
+            }
+
+            if (fixture.isSensor()) return 1
+
+            if (normal.y > 0.5) {
+                grounded = true;
+                return fraction;
+            }
+
+            return 1;
+        })
+
+        const movementSpeed = grounded ? this.moveSpeed : this.airMoveSpeed;
         
         if (this.parent?.app.getKey("a")) {
-            this.rigidbody.body?.applyLinearImpulse(
-                {x: -movementSpeed, y: 1},
-                {
-                    x: this.rigidbody.body.getPosition().x,
-                    y: this.rigidbody.body.getPosition().y
-                }
+            this.rigidbody.body?.setLinearVelocity(
+                {x: this.rigidbody.body.getLinearVelocity().x-movementSpeed, y: this.rigidbody.body.getLinearVelocity().y},
             )
         } else if (this.parent?.app.getKey("d")) {
-            this.rigidbody.body?.applyLinearImpulse(
-                {x: movementSpeed, y: 1},
-                {
-                    x: this.rigidbody.body.getPosition().x,
-                    y: this.rigidbody.body.getPosition().y
-                }
+            this.rigidbody.body?.setLinearVelocity(
+                {x: this.rigidbody.body.getLinearVelocity().x+movementSpeed, y: this.rigidbody.body.getLinearVelocity().y},
             )
         }
 
-        if (this.parent?.app.getKey("w") && this.parent.isTriggered) {
+        if (this.parent?.app.getKey("w") && grounded) {
             this.rigidbody.body?.applyLinearImpulse(
                 {x: 0, y: this.jumpForce},
                 {
@@ -136,13 +156,9 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Vector2(24, 32)
             ),
 
-            new Phoenix.BoxCollider(
-                new Phoenix.Vector2(2, 4), true, new Phoenix.Vector2(0, -35)
-            ),
+            new Phoenix.Rigidbody(20, 10, false, true),
 
-            new Phoenix.Rigidbody(30, 20, false, true),
-
-            new PlayerController(20, 5, 60)
+            new PlayerController(0.7, 0.3, 60)
         );
 
         const camera = app.createObject(
@@ -164,9 +180,18 @@ export class Scene extends Phoenix.Scene {
                 {
                     type: "tileset",
                     data: {
-                        position: {x:0, y:-1},
+                        position: {x:4, y:-1},
                         scale: {x: 4, y:3},
                         sprite: "grass_bricks",
+                        hasCollision: true
+                    }
+                },
+                {
+                    type: "tile",
+                    data: {
+                        position: {x:0, y:-1},
+                        scale: {x: 4, y:3},
+                        sprite: "stone_brick",
                         hasCollision: true
                     }
                 }
