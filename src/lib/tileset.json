@@ -11,6 +11,10 @@
         ]
     },
     "dynamicTiles": {
-
+        "phys_cube": {
+            "sprite": "assets/editor/null.png",
+            "scale": {"x": 32, "y": 32},
+            "options": {}
+        }
     }
 }

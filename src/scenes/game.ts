@@ -195,6 +195,14 @@ export class Scene extends Phoenix.Scene {
                         sprite: "stone_brick",
                         hasCollision: true
                     }
+                },
+                {
+                    type: "dynamic",
+                    data: {
+                        position: {x:3, y:2},
+                        name: "phys_cube",
+                        options: {}
+                    }
                 }
             ]
         })

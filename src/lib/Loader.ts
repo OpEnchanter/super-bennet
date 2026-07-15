@@ -2,10 +2,33 @@ import * as Phoenix from "phoenix";
 import * as pl from "planck";
 import TileConfig from "./tileset.json";
 
+const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = {
+    "phys_cube": (app, position, options) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(
+                    32, 32
+                )
+            ),
+            new Phoenix.Sprite("assets/tiles/editor/null.png"),
+            new Phoenix.Renderer(0),
+            new Phoenix.BoxCollider(new Phoenix.Vector2(32, 32)),
+            new Phoenix.Rigidbody(40, 1, false, false),
+        ))
+    }
+}
+const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
+
 type TileSetSchema = string[][]
 
 type DynamicTileSchema = {
-    texture: string,
+    sprite: string,
+    scale: {x:number, y:number},
     options: Object
 }
 
@@ -39,6 +62,15 @@ type TileSetData = {
     },
     sprite: string,
     hasCollision: boolean
+}
+
+type DynamicTileData = {
+    position: {
+        x: number,
+        y: number
+    },
+    name: string,
+    options: Object
 }
 
 type LoadableObject = {
@@ -300,6 +332,18 @@ export class LevelLoader {
                             tileLookupMap.set(`${x+tileData.position.x},${y+tileData.position.y}`, bounds)
                         }
                     }
+                }
+            } else if (object.type === "dynamic") {
+                console.log("loading dynamic object")
+                const tileData = object.data as DynamicTileData;
+                const objectFunction = dynamicTileFunctionMap.get(tileData.name);
+                if (objectFunction) {
+                    console.log(objectFunction);
+                    this.levelRootObject.addChild(objectFunction(
+                        this.app, 
+                        new Phoenix.Vector2(tileData.position.x, tileData.position.y), 
+                        tileData.options
+                    ));
                 }
             }
         }
