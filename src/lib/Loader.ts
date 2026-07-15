@@ -4,16 +4,15 @@ import TileConfig from "./tileset.json";
 
 type TileSetSchema = string[][]
 
-type ComplexTileSchema = {
+type DynamicTileSchema = {
     texture: string,
-    scale: {x: number, y: number}
     options: Object
 }
 
 type TileConfigSchema = {
     tiles: Record<string, string>,
     tileSets: Record<string, TileSetSchema>,
-    complexTiles: Record<string, ComplexTileSchema>
+    dynamicTiles: Record<string, DynamicTileSchema>
 }
 
 type TileData = {
@@ -311,7 +310,7 @@ export class LevelLoader {
             // Top
             const topEdge = pl.Edge(
                 {x: bounds.position.x, y: bounds.position.y + 0.5},
-                {x: bounds.position.x + bounds.scale.x, y: bounds.position.y + 0.5}
+                {x: bounds.position.x + (bounds.scale.x - 1), y: bounds.position.y + 0.5}
             )
 
             const topLeftTile = `${bounds.position.x-1},${bounds.position.y}`
@@ -337,7 +336,7 @@ export class LevelLoader {
             // Bottom
             const bottomEdge = pl.Edge(
                 {x: bounds.position.x, y: bounds.position.y + 0.5 - bounds.scale.y},
-                {x: bounds.position.x + bounds.scale.x, y: bounds.position.y + 0.5 - bounds.scale.y}
+                {x: bounds.position.x + (bounds.scale.x - 1), y: bounds.position.y + 0.5 - bounds.scale.y}
             )
 
             // Left

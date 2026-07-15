@@ -10,7 +10,7 @@
             ["assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png"]
         ]
     },
-    "complexTiles": {
+    "dynamicTiles": {
 
     }
 }

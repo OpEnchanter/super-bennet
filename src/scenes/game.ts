@@ -24,34 +24,35 @@ class PlayerController extends Phoenix.Component {
 
     public override onUpdate(): void {
         if (!this.rigidbody || !this.transform || !this.sprite) return;
-
-        const feetPos = {
-            x: this.transform.globalPosition.x / 32,
-            y: (this.transform.globalPosition.y) / 32
-        }
-
         let grounded = false;
-        
-        this.parent?.app.plWorld.rayCast(feetPos, {
-            x: feetPos.x,
-            y: feetPos.y - 0.6
-        }, (fixture, point, normal, fraction) => {
 
-            console.log(fixture.getType())
+        const rayPositions = [-1, -0.375, 0, 0.375, 1]
 
-            if (fixture.getBody() == this.rigidbody?.body) {
+        for (const p of rayPositions) {
+            const leftPos = {
+                x: (this.rigidbody.body!.getPosition().x + p),
+                y: (this.rigidbody.body!.getPosition().y - 0.2)
+            }
+            
+            this.parent?.app.plWorld.rayCast(leftPos, {
+                x: leftPos.x,
+                y: leftPos.y - 0.6
+            }, (fixture, point, normal, fraction) => {
+
+                if (fixture.getBody() == this.rigidbody?.body) {
+                    return 1;
+                }
+
+                if (fixture.isSensor()) return 1
+
+                if (normal.y > 0.5) {
+                    grounded = true;
+                    return fraction;
+                }
+
                 return 1;
-            }
-
-            if (fixture.isSensor()) return 1
-
-            if (normal.y > 0.5) {
-                grounded = true;
-                return fraction;
-            }
-
-            return 1;
-        })
+            })
+        }
 
         const movementSpeed = grounded ? this.moveSpeed : this.airMoveSpeed;
         
@@ -178,11 +179,11 @@ export class Scene extends Phoenix.Scene {
         loader.loadFromJson({
             objects: [
                 {
-                    type: "tileset",
+                    type: "tile",
                     data: {
                         position: {x:4, y:-1},
                         scale: {x: 4, y:3},
-                        sprite: "grass_bricks",
+                        sprite: "brick",
                         hasCollision: true
                     }
                 },
