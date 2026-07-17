@@ -79,6 +79,9 @@ class ButtonAnimator extends Phoenix.Component {
     initialScale: Phoenix.Vector2 | undefined;
     targetScale: Phoenix.Vector2 | undefined;
 
+    randomizedRotation: number = (Math.random() * 2 - 1) * 15;
+    targetRotation: number = 0;
+
     public override onInitialized(): void {
         this.transform = this.parent?.getComponent(Phoenix.Transform);
         this.button = this.parent?.getComponent(Phoenix.Button);
@@ -101,17 +104,78 @@ class ButtonAnimator extends Phoenix.Component {
         if (this.button.isHovered) {
             this.targetScale!.x = this.initialScale!.x * 1.1;
             this.targetScale!.y = this.initialScale!.x * 1.1;
+
+            this.targetRotation = this.randomizedRotation;
         } else {
             this.targetScale!.x = this.initialScale!.x;
             this.targetScale!.y = this.initialScale!.y;
+
+            this.targetRotation = 0;
         }
 
         this.transform.scale.x += (this.targetScale!.x - this.transform.scale.x) / 4;
         this.transform.scale.y += (this.targetScale!.y - this.transform.scale.y) / 4;
+
+        this.transform.rotation += (this.targetRotation - this.transform.rotation) / 4
     }
 }
+
+class SelectedObjectIndicator extends Phoenix.Component {
+    transform: Phoenix.Transform | undefined;
+    rotationalVelocity: number = 0;
+    rotation: number = 0;
+
+    px: number = 0;
+    py: number = 0;
+
+    public override onInitialized(): void {
+        this.transform = this.parent?.getComponent(Phoenix.Transform);
+    }
+
+    public override onUpdate(): void {
+        if (!this.transform) return;
+        const m = this.parent!.app.getMousePos()
+
+        const x = ((m.x + 24) - this.px) / 8;
+        const y = ((m.y - 24) - this.py) / 8
+
+        this.px += x;
+        this.py += y;
+
+        this.rotationalVelocity += -x / 32
+        this.rotationalVelocity += (0 - this.rotation) / 128
+        this.rotationalVelocity *= 0.96
+
+        this.rotation += this.rotationalVelocity;
+
+        this.transform.rotation = 45 + this.rotation;
+
+        this.transform.position.x = 
+            Math.cos(this.rotation * (Math.PI / 180) - (Math.PI / 2)) * 16 + this.px
+        this.transform.position.y = 
+            Math.sin(this.rotation * (Math.PI / 180) - (Math.PI / 2)) * 16 + this.py
+    }
+}
+
+class UpdatableSprite extends Phoenix.Sprite {
+    public updateSprite(newSprite: string) {
+        this.texture = this.loadTexture(newSprite)
+    }
+}
+
+type SelectedObjectSchema = {
+    type: string,
+    id: string
+}
+
 export class Scene extends Phoenix.Scene {
     public override onLoad(app: Phoenix.App): void {
+
+        let selectedObject: SelectedObjectSchema = {
+            type: "tile",
+            id: "brick"
+        } 
+
         // Camera
         app.addObject(app.createObject(
             new Phoenix.Transform(
@@ -124,6 +188,21 @@ export class Scene extends Phoenix.Scene {
             new GridRenderer()
         ));
 
+        // Selected Object Indicator
+        const selectedObjectSprite = new UpdatableSprite("assets/tiles/brick/brick.png");
+        app.addObject(app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(0,0),
+                0,
+                new Phoenix.Vector2(32, 32)
+            ),
+
+            selectedObjectSprite,
+
+            new SelectedObjectIndicator(),
+
+            new Phoenix.UIRenderer(3)
+        ))
 
         // Add menu
         const canvas = document.createElement("canvas");
@@ -187,7 +266,11 @@ export class Scene extends Phoenix.Scene {
 
                 new Phoenix.Sprite(sprite),
 
-                new Phoenix.Button(),
+                new Phoenix.Button(() => {
+                    selectedObjectSprite.updateSprite(sprite)
+                    selectedObject.type = "tile"
+                    selectedObject.id = name
+                }),
 
                 new ButtonAnimator(),
 
@@ -235,7 +318,11 @@ export class Scene extends Phoenix.Scene {
 
                 new Phoenix.Sprite(data[0]![1]!),
 
-                new Phoenix.Button(),
+                new Phoenix.Button(() => {
+                    selectedObjectSprite.updateSprite(data[0]![1]!)
+                    selectedObject.type = "tilset"
+                    selectedObject.id = name
+                }),
 
                 new ButtonAnimator(),
 
@@ -283,7 +370,11 @@ export class Scene extends Phoenix.Scene {
 
                 new Phoenix.Sprite(data.sprite),
 
-                new Phoenix.Button(),
+                new Phoenix.Button(() => {
+                    selectedObjectSprite.updateSprite(data.sprite)
+                    selectedObject.type = "dynamic"
+                    selectedObject.id = name
+                }),
 
                 new ButtonAnimator(),
 
