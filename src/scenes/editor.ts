@@ -61,8 +61,8 @@ class GridRenderer extends Phoenix.Component {
         if (!this.transform) return
 
         this.gridHelper?.position.set(
-            Math.floor(this.transform.position.x / 32) * 32,
-            Math.floor(this.transform.position.y / 32) * 32,
+            Math.floor(this.transform.position.x / 32) * 32 + 16,
+            Math.floor(this.transform.position.y / 32) * 32 + 16,
         )
     }
 
@@ -231,10 +231,36 @@ export class Scene extends Phoenix.Scene {
 
         const menuPadding = 24;
         const menuSpacing = 24;
-        let curUIY = 0
+        let curUIY = window.innerHeight / 2 - menuPadding
+
+        const quitButtonText = new Phoenix.TextSprite("Exit", {
+            fontSize: 24,
+            padding: 8,
+            fontColor: "#afafaf",
+            backgroundColor: "#040404",
+            backgroundWidth: (500 - menuPadding * 2 - menuSpacing) / 2
+        })
+        curUIY -= quitButtonText.texture!.height / 2
+        menu.addChild(app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    -250 + quitButtonText.texture!.width / 2 + menuPadding,
+                    curUIY
+                ),
+                0,
+                new Phoenix.Vector2(quitButtonText.texture!.width, quitButtonText.texture!.height)
+            ),
+            quitButtonText,
+            new Phoenix.Button(() => {
+                app.loadScene("title")
+            }),
+            new Phoenix.UIRenderer(2)
+        ))
+        curUIY -= quitButtonText.texture!.height / 2
+
 
         const tilesText = new Phoenix.TextSprite("Tiles", {fontColor: "#afafaf", fontSize: 32})
-        curUIY = window.innerHeight / 2 - tilesText.texture!.height / 2 - menuPadding
+        curUIY -= tilesText.texture!.height / 2 + menuSpacing
         menu.addChild(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
@@ -390,5 +416,37 @@ export class Scene extends Phoenix.Scene {
         }
 
         app.addObject(menu);
+
+        const loader: Loader.LevelLoader = new Loader.LevelLoader(app);
+        loader.loadFromJson({
+            objects: [
+                {
+                    type: "tile",
+                    data: {
+                        position: {x:4, y:-1},
+                        scale: {x: 4, y:3},
+                        sprite: "brick",
+                        hasCollision: true
+                    }
+                },
+                {
+                    type: "tile",
+                    data: {
+                        position: {x:0, y:-1},
+                        scale: {x: 4, y:3},
+                        sprite: "stone_brick",
+                        hasCollision: true
+                    }
+                },
+                {
+                    type: "dynamic",
+                    data: {
+                        position: {x:3, y:2},
+                        name: "phys_cube",
+                        options: {}
+                    }
+                }
+            ]
+        })
     }
 }
