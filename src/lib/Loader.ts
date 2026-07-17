@@ -26,19 +26,19 @@ const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.V
 
 type TileSetSchema = string[][]
 
-type DynamicTileSchema = {
+export type DynamicTileSchema = {
     sprite: string,
     scale: {x:number, y:number},
     options: Object
 }
 
-type TileConfigSchema = {
+export type TileConfigSchema = {
     tiles: Record<string, string>,
     tileSets: Record<string, TileSetSchema>,
     dynamicTiles: Record<string, DynamicTileSchema>
 }
 
-type TileData = {
+export type TileData = {
     position: {
         x: number,
         y: number
@@ -51,7 +51,7 @@ type TileData = {
     hasCollision: boolean
 }
 
-type TileSetData = {
+export type TileSetData = {
     position: {
         x: number,
         y: number

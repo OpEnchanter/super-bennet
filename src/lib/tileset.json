@@ -1,7 +1,19 @@
 {
     "tiles": {
         "brick": "assets/tiles/brick/brick.png",
-        "stone_brick": "assets/tiles/stone-bricks/stone-bricks.png"
+        "brick_grass": "assets/tiles/brick/grass/brick-grass.png",
+        "brick_grass_top_left": "assets/tiles/brick/grass/brick-grass-top-left.png",
+        "brick_grass_top_right": "assets/tiles/brick/grass/brick-grass-top-right.png",
+        "brick_dark": "assets/tiles/brick/brick-dark.png",
+        "brick_dark_half": "assets/tiles/brick/brick-dark-half.png",
+
+        "stone_brick": "assets/tiles/stone-bricks/stone-bricks.png",
+        "stone_brick_grass": "assets/tiles/stone-bricks/grass/stone-bricks-grass.png",
+        "stone_brick_grass_top_left": "assets/tiles/stone-bricks/grass/stone-bricks-grass-top-left.png",
+        "stone_brick_grass_top_right": "assets/tiles/stone-bricks/grass/stone-bricks-grass-top-right.png",
+        "stone_brick_dark": "assets/tiles/stone-bricks/stone-bricks-dark.png",
+        "stone_brick_dark_half": "assets/tiles/stone-bricks/stone-bricks-dark-half.png"
+        
     },
     "tileSets": {
         "grass_bricks": [
@@ -12,7 +24,7 @@
     },
     "dynamicTiles": {
         "phys_cube": {
-            "sprite": "assets/editor/null.png",
+            "sprite": "assets/tiles/editor/null.png",
             "scale": {"x": 32, "y": 32},
             "options": {}
         }

@@ -5,7 +5,7 @@ import * as EditorScene from "./scenes/editor"
 import * as pl from "planck";
 
 const app: Phoenix.App = new Phoenix.App({
-    renderScale: new Phoenix.Vector2(2160, 1440),
+    renderScale: new Phoenix.Vector2(720, 360),
     clearColor: 0x4aeddc,
     zoom: 1/4
 })

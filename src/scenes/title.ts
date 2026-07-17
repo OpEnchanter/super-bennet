@@ -34,16 +34,15 @@ export class Scene extends Phoenix.Scene {
             backgroundColor: "#8cab9d",
             padding: 4,
             fontSize: 12,
-            borderRadius: 5
+            borderRadius: 5,
+            backgroundWidth: 128
         });
-
-        let scaleMultiplier = 1;
 
         app.addObject(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
                     window.innerWidth / -2 + (0.5 * startButtonText.texture!.width * 4) + 32, 
-                    window.innerHeight / 2 - (0.5 * startButtonText.texture!.width * 4) - 8
+                    window.innerHeight / 2 - (0.5 * startButtonText.texture!.height * 4) - 32
                 ),
                 0,
                 new Phoenix.Vector2(
@@ -68,14 +67,15 @@ export class Scene extends Phoenix.Scene {
             backgroundColor: "#8cab9d",
             padding: 4,
             fontSize: 12,
-            borderRadius: 5
+            borderRadius: 5,
+            backgroundWidth: 128
         });
 
         app.addObject(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
                     window.innerWidth / -2 + (0.5 * editorButtonText.texture!.width * 4) + 32, 
-                    window.innerHeight / 2 - (0.5 * editorButtonText.texture!.height * 4) - 8 - 128
+                    window.innerHeight / 2 - (0.5 * editorButtonText.texture!.height * 4) - 128
                 ),
                 0,
                 new Phoenix.Vector2(
