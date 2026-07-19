@@ -120,7 +120,7 @@ class ButtonAnimator extends Phoenix.Component {
     }
 }
 
-class SelectedObjectIndicator extends Phoenix.Component {
+class SelectedPaintTileIndicator extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
     rotationalVelocity: number = 0;
     rotation: number = 0;
@@ -163,18 +163,222 @@ class UpdatableSprite extends Phoenix.Sprite {
     }
 }
 
-type SelectedObjectSchema = {
+class SceneManipulationHandler extends Phoenix.Component {
+    app: Phoenix.App;
+
+    transform: Phoenix.Transform | undefined;
+
+    mouseDownOld: boolean = false;
+
+    selectedPaintTile: SelectedPaintTileSchema;
+    selectedObject: EditorLoadableObject | undefined;
+    objectMap: Map<string, EditorLoadableObject>;
+    objects: Array<EditorLoadableObject>
+
+    objectScaleXHandle: Phoenix.GameObject | undefined;
+    objectScaleYHandle: Phoenix.GameObject | undefined;
+
+    t: number = 0;
+
+    constructor(
+        app: Phoenix.App, 
+        selectedPaintTile: SelectedPaintTileSchema,  
+        selectedObject: EditorLoadableObject | undefined, 
+        objectMap: Map<string, EditorLoadableObject>,
+        objects: Array<EditorLoadableObject>
+    ){
+        super();
+        this.app = app;
+        this.selectedPaintTile = selectedPaintTile;
+        this.objectMap = objectMap;
+        this.selectedObject = selectedObject;
+        this.objects = objects;
+    }
+
+    public override onInitialized(): void {
+        this.transform = this.parent?.getComponent(Phoenix.Transform);
+
+        const scaleXHandleSprite = new Phoenix.TextSprite("", {
+            fontColor: "black",
+            backgroundColor: "#ff8a7c",
+            borderRadius: 4,
+            backgroundWidth: 8,
+            backgroundHeight: 8
+        })
+
+        this.objectScaleXHandle = this.app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(0,0),
+                0,
+                new Phoenix.Vector2(8,8)
+            ),
+            scaleXHandleSprite,
+            new Phoenix.Renderer(2)
+        )
+
+        this.app.addObject(this.objectScaleXHandle);
+
+        const scaleYHandleSprite = new Phoenix.TextSprite("", {
+            fontColor: "black",
+            backgroundColor: "#7cff8a",
+            borderRadius: 4,
+            backgroundWidth: 8,
+            backgroundHeight: 8
+        })
+
+        this.objectScaleYHandle = this.app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(0,0),
+                0,
+                new Phoenix.Vector2(8,8)
+            ),
+            scaleYHandleSprite,
+            new Phoenix.Renderer(2)
+        )
+
+        this.app.addObject(this.objectScaleYHandle);
+    }
+
+    public override onUpdate(): void {
+        if (!this.transform) return;
+        const mouseDown = this.app.getMouseDown();
+        if (mouseDown && !this.mouseDownOld && this.t !== 0) {
+            const mp = this.app.getMousePos();
+
+            const mpWorldSpace = new Phoenix.Vector2(
+                Math.round((
+                    mp.x * 0.25 + 
+                    this.transform.globalPosition.x
+                ) / 32) * 32,
+                
+                Math.round((
+                    mp.y * 0.25 + 
+                    this.transform.globalPosition.y
+                ) / 32) * 32
+                    
+            );
+
+            const objectMapKey = `${mpWorldSpace.x},${mpWorldSpace.y}`;
+
+            if (this.objectMap.get(objectMapKey)) {
+                console.log("SELECTING")
+                this.selectedObject = this.objectMap.get(objectMapKey);
+                const selectedGameObject = this.selectedObject!.gameObject;
+
+                const selectedTransform = selectedGameObject.getComponent(Phoenix.Transform)
+                
+                this.objectScaleXHandle!.getComponent(Phoenix.Transform)!.position.x = 
+                    selectedTransform!.position.x * 16 + selectedTransform!.scale.x * 16;
+
+                return
+            }
+
+            let objectData: Object = {};
+            let gameObject: Phoenix.GameObject | undefined = undefined;
+
+            switch (this.selectedPaintTile.type) {
+                case "tile":
+                    objectData = {
+                        position: {
+                            x: mpWorldSpace.x,
+                            y: mpWorldSpace.y
+                        },
+                        scale: {
+                            x: 1,
+                            y: 1
+                        },
+                        sprite: this.selectedPaintTile.id,
+                        hasCollision: true
+                    } as Loader.TileData;
+                    
+                    gameObject = this.app.createObject(
+                        new Phoenix.Transform(
+                            new Phoenix.Vector2(
+                                mpWorldSpace.x,
+                                mpWorldSpace.y
+                            ),
+                            0,
+                            new Phoenix.Vector2(32, 32)
+                        ),
+
+                        new Phoenix.Sprite(tileConfig.tiles[this.selectedPaintTile.id]!),
+                        new Phoenix.Renderer(1)
+                    );
+                    break;
+                case "tileset":
+                    objectData = {
+                        position: {
+                            x: mpWorldSpace.x,
+                            y: mpWorldSpace.y
+                        },
+                        scale: {
+                            x: 1,
+                            y: 1
+                        },
+                        sprite: this.selectedPaintTile.id,
+                        hasCollision: true
+                    } as Loader.TileSetData;
+                    break;
+                case "dynamic":
+                    objectData = {
+                        position: {
+                            x: mpWorldSpace.x,
+                            y: mpWorldSpace.y
+                        },
+                        name: this.selectedPaintTile.id,
+                        options: {}
+                    } as Loader.DynamicTileData;
+                    break;
+            }
+
+            console.log(gameObject);
+
+            if (!gameObject) return;
+
+            this.app.addObject(gameObject);
+
+            const objectJSON = {
+                type: this.selectedPaintTile.type,
+                data: objectData,
+                gameObject: gameObject
+            } as EditorLoadableObject;
+
+            this.objects.push(objectJSON);
+            
+            this.objectMap.set(
+                objectMapKey,
+                objectJSON
+            );
+        }
+        this.mouseDownOld = mouseDown;
+        this.t++;
+    }
+}
+
+
+type EditorLoadableObject = {
+    type: string,
+    data: Object,
+    gameObject: Phoenix.GameObject
+}
+
+type SelectedPaintTileSchema = {
     type: string,
     id: string
 }
 
 export class Scene extends Phoenix.Scene {
     public override onLoad(app: Phoenix.App): void {
+        // Object map
+        const objectMap: Map<string, EditorLoadableObject> = new Map();
+        const objects: Array<EditorLoadableObject> = [];
 
-        let selectedObject: SelectedObjectSchema = {
+        let selectedPaintTile: SelectedPaintTileSchema = {
             type: "tile",
             id: "brick"
-        } 
+        }
+
+        let selectedObject: EditorLoadableObject | undefined;
 
         // Camera
         app.addObject(app.createObject(
@@ -185,11 +389,12 @@ export class Scene extends Phoenix.Scene {
             ),
             new Phoenix.Camera(),
             new CameraController(2.5, 2),
-            new GridRenderer()
+            new GridRenderer(),
+            new SceneManipulationHandler(app, selectedPaintTile, selectedObject, objectMap, objects)
         ));
 
-        // Selected Object Indicator
-        const selectedObjectSprite = new UpdatableSprite("assets/tiles/brick/brick.png");
+        // Selected Object-To-Place Indicator
+        const selectedPaintTileSprite = new UpdatableSprite("assets/tiles/brick/brick.png");
         app.addObject(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(0,0),
@@ -197,9 +402,9 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Vector2(32, 32)
             ),
 
-            selectedObjectSprite,
+            selectedPaintTileSprite,
 
-            new SelectedObjectIndicator(),
+            new SelectedPaintTileIndicator(),
 
             new Phoenix.UIRenderer(3)
         ))
@@ -293,9 +498,9 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Sprite(sprite),
 
                 new Phoenix.Button(() => {
-                    selectedObjectSprite.updateSprite(sprite)
-                    selectedObject.type = "tile"
-                    selectedObject.id = name
+                    selectedPaintTileSprite.updateSprite(sprite)
+                    selectedPaintTile.type = "tile"
+                    selectedPaintTile.id = name
                 }),
 
                 new ButtonAnimator(),
@@ -345,9 +550,9 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Sprite(data[0]![1]!),
 
                 new Phoenix.Button(() => {
-                    selectedObjectSprite.updateSprite(data[0]![1]!)
-                    selectedObject.type = "tilset"
-                    selectedObject.id = name
+                    selectedPaintTileSprite.updateSprite(data[0]![1]!)
+                    selectedPaintTile.type = "tilset"
+                    selectedPaintTile.id = name
                 }),
 
                 new ButtonAnimator(),
@@ -397,9 +602,9 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Sprite(data.sprite),
 
                 new Phoenix.Button(() => {
-                    selectedObjectSprite.updateSprite(data.sprite)
-                    selectedObject.type = "dynamic"
-                    selectedObject.id = name
+                    selectedPaintTileSprite.updateSprite(data.sprite)
+                    selectedPaintTile.type = "dynamic"
+                    selectedPaintTile.id = name
                 }),
 
                 new ButtonAnimator(),
@@ -416,37 +621,5 @@ export class Scene extends Phoenix.Scene {
         }
 
         app.addObject(menu);
-
-        const loader: Loader.LevelLoader = new Loader.LevelLoader(app);
-        loader.loadFromJson({
-            objects: [
-                {
-                    type: "tile",
-                    data: {
-                        position: {x:4, y:-1},
-                        scale: {x: 4, y:3},
-                        sprite: "brick",
-                        hasCollision: true
-                    }
-                },
-                {
-                    type: "tile",
-                    data: {
-                        position: {x:0, y:-1},
-                        scale: {x: 4, y:3},
-                        sprite: "stone_brick",
-                        hasCollision: true
-                    }
-                },
-                {
-                    type: "dynamic",
-                    data: {
-                        position: {x:3, y:2},
-                        name: "phys_cube",
-                        options: {}
-                    }
-                }
-            ]
-        })
     }
 }

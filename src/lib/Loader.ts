@@ -64,7 +64,7 @@ export type TileSetData = {
     hasCollision: boolean
 }
 
-type DynamicTileData = {
+export type DynamicTileData = {
     position: {
         x: number,
         y: number
@@ -73,7 +73,7 @@ type DynamicTileData = {
     options: Object
 }
 
-type LoadableObject = {
+export type LoadableObject = {
     type: string,
     data: Object
 }
