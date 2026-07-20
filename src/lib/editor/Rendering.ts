@@ -12,6 +12,7 @@ export class TileRenderer extends Phoenix.Component {
     mesh: THREE.InstancedMesh | undefined;
 
     oldScale: Phoenix.Vector2 = new Phoenix.Vector2(0,0);
+    oldPosition: Phoenix.Vector2 = new Phoenix.Vector2(0,0);
 
     constructor(tileData: TileData) {
         super();
@@ -41,7 +42,7 @@ export class TileRenderer extends Phoenix.Component {
 
         this.mesh = new THREE.InstancedMesh(geo, material, 5000);
 
-        this.resize();
+        this.retransform();
 
         this.parent?.app.renderScene.add(this.mesh);
     }
@@ -55,14 +56,21 @@ export class TileRenderer extends Phoenix.Component {
 
     public override onUpdate(): void {
         if (this.tileData.scale.x !== this.oldScale.x || this.tileData.scale.y !== this.oldScale.y) {
-            this.resize();
+            this.retransform();
+        }
+
+        if (this.tileData.position.x !== this.oldPosition.x || this.tileData.position.y !== this.oldPosition.y) {
+            this.retransform();
         }
 
         this.oldScale.x = this.tileData.scale.x;
         this.oldScale.y = this.tileData.scale.y;
+
+        this.oldPosition.x = this.tileData.position.x;
+        this.oldPosition.y = this.tileData.position.y;
     }
 
-    public resize() {
+    public retransform() {
         if (!this.mesh) return;
 
         let positions: Array<Phoenix.Vector2> = [];
