@@ -37,3 +37,8 @@ export type LoadableObject = {
     type: string,
     data: Object
 }
+
+export type ObjectBounds = {
+    position: {x:number, y:number},
+    scale: {x:number, y:number}
+}

@@ -3,8 +3,11 @@ import type { EditorLoadableObject, SelectedPaintTileSchema } from "./Types";
 import * as Loader from "../scene/Loader"
 import TileConfig from "../tileset.json";
 import type { TileData, TileSetData, DynamicTileData } from "../scene/Types";
+import type { TileRenderer } from "./Rendering";
 
 const tileConfig = TileConfig as Loader.TileConfigSchema;
+
+let muteTilePlaceEvents: boolean = false;
 
 function getTileData(object: EditorLoadableObject) {
     let selectedTileData: {
@@ -57,13 +60,26 @@ class HorizontalRescaleHandle extends Phoenix.Component {
     }
 
     public override onUpdate(): void {
-        if (this.selectedObject) {
+        if (this.selectedObject && this.selectedObject.type !== "dynamic") {
             const selectedTileData = getTileData(this.selectedObject);
 
             this.transform!.position.x = 
                 selectedTileData.position.x * 32 + selectedTileData.scale!.x * 16;
             this.transform!.position.y = 
                 selectedTileData.position!.y * 32;
+
+            const mousePos = this.parent?.app.getMousePos()!;
+            const wsMousePos = new Phoenix.Vector2(
+                mousePos.x * 0.25 + this.parent!.app.camera.position.x, 
+                mousePos.y * 0.25 + this.parent!.app.camera.position.y
+            );
+
+            if (Math.sqrt(
+                Math.pow(wsMousePos.x - this.transform!.position.x, 2)
+                + Math.pow(wsMousePos.y - this.transform!.position.y, 2)
+            ) < 8) {
+                muteTilePlaceEvents = true;
+            }
         }
     }
 }
@@ -72,6 +88,8 @@ class VerticalRescaleHandle extends Phoenix.Component {
     selectedObject: EditorLoadableObject | undefined;
 
     transform: Phoenix.Transform | undefined;
+
+    isDragging: boolean = false;
 
     setSelectedObject(selectedObject: EditorLoadableObject | undefined) {
         this.selectedObject = selectedObject;
@@ -87,13 +105,34 @@ class VerticalRescaleHandle extends Phoenix.Component {
     }
 
     public override onUpdate(): void {
-        if (this.selectedObject) {
+        if (this.selectedObject && this.selectedObject.type !== "dynamic") {
             const selectedTileData = getTileData(this.selectedObject);
 
             this.transform!.position.x = 
                 selectedTileData.position.x * 32;
             this.transform!.position.y = 
                 selectedTileData.position!.y * 32 - selectedTileData.scale!.x * 16;
+
+            const mousePos = this.parent?.app.getMousePos()!;
+            const wsMousePos = new Phoenix.Vector2(
+                mousePos.x * 0.25 + this.parent!.app.camera.position.x, 
+                mousePos.y * 0.25 + this.parent!.app.camera.position.y
+            );
+
+            if (Math.sqrt(
+                Math.pow(wsMousePos.x - this.transform!.position.x, 2)
+                + Math.pow(wsMousePos.y - this.transform!.position.y, 2)
+            ) < 8) {
+                muteTilePlaceEvents = true;
+
+                if (this.parent!.app.getMouseDown()) {
+                    this.isDragging = true;
+                }
+            }
+
+            if (this.isDragging && !this.parent!.app.getMouseDown()) {
+                this.isDragging = false;
+            }
         }
     }
 }
@@ -199,9 +238,13 @@ export class SceneManipulationHandler extends Phoenix.Component {
     }
 
     public override onUpdate(): void {
+        muteTilePlaceEvents = false;
+    }
+
+    public override onLateUpdate(): void {
         if (!this.transform) return;
         const mouseDown = this.app.getMouseDown();
-        if (mouseDown && !this.mouseDownOld && this.t !== 0) {
+        if (mouseDown && !this.mouseDownOld && this.t !== 0 && !muteTilePlaceEvents) {
             const mp = this.app.getMousePos();
 
             const mpWorldSpace = new Phoenix.Vector2(
@@ -242,87 +285,84 @@ export class SceneManipulationHandler extends Phoenix.Component {
                     selectedTileData.scale.x * 32;
                 this.selectedObjectOverlay!.getComponent(Phoenix.Transform)!.scale.y = 
                     selectedTileData.scale.y * 32;
+            } else {
+                let objectData: Object = {};
+                let gameObject: Phoenix.GameObject | undefined = undefined;
 
-                this.mouseDownOld = mouseDown;
-                return;
-            }
-
-            let objectData: Object = {};
-            let gameObject: Phoenix.GameObject | undefined = undefined;
-
-            switch (this.selectedPaintTile.type) {
-                case "tile":
-                    objectData = {
-                        position: {
-                            x: mpWorldSpace.x,
-                            y: mpWorldSpace.y
-                        },
-                        scale: {
-                            x: 1,
-                            y: 1
-                        },
-                        sprite: this.selectedPaintTile.id,
-                        hasCollision: true
-                    } as TileData;
-                    
-                    gameObject = this.app.createObject(
-                        new Phoenix.Transform(
-                            new Phoenix.Vector2(
-                                mpWorldSpace.x * 32,
-                                mpWorldSpace.y * 32
+                switch (this.selectedPaintTile.type) {
+                    case "tile":
+                        objectData = {
+                            position: {
+                                x: mpWorldSpace.x,
+                                y: mpWorldSpace.y
+                            },
+                            scale: {
+                                x: 1,
+                                y: 1
+                            },
+                            sprite: this.selectedPaintTile.id,
+                            hasCollision: true
+                        } as TileData;
+                        
+                        gameObject = this.app.createObject(
+                            new Phoenix.Transform(
+                                new Phoenix.Vector2(
+                                    mpWorldSpace.x * 32,
+                                    mpWorldSpace.y * 32
+                                ),
+                                0,
+                                new Phoenix.Vector2(32, 32)
                             ),
-                            0,
-                            new Phoenix.Vector2(32, 32)
-                        ),
 
-                        new Phoenix.Sprite(tileConfig.tiles[this.selectedPaintTile.id]!),
-                        new Phoenix.Renderer(1)
-                    );
-                    break;
-                case "tileset":
-                    objectData = {
-                        position: {
-                            x: mpWorldSpace.x,
-                            y: mpWorldSpace.y
-                        },
-                        scale: {
-                            x: 1,
-                            y: 1
-                        },
-                        sprite: this.selectedPaintTile.id,
-                        hasCollision: true
-                    } as TileSetData;
-                    break;
-                case "dynamic":
-                    objectData = {
-                        position: {
-                            x: mpWorldSpace.x,
-                            y: mpWorldSpace.y
-                        },
-                        name: this.selectedPaintTile.id,
-                        options: {}
-                    } as DynamicTileData;
-                    break;
+                            new Phoenix.Sprite(tileConfig.tiles[this.selectedPaintTile.id]!),
+                            new Phoenix.Renderer(1)
+                        );
+                        break;
+                    case "tileset":
+                        objectData = {
+                            position: {
+                                x: mpWorldSpace.x,
+                                y: mpWorldSpace.y
+                            },
+                            scale: {
+                                x: 1,
+                                y: 1
+                            },
+                            sprite: this.selectedPaintTile.id,
+                            hasCollision: true
+                        } as TileSetData;
+                        break;
+                    case "dynamic":
+                        objectData = {
+                            position: {
+                                x: mpWorldSpace.x,
+                                y: mpWorldSpace.y
+                            },
+                            name: this.selectedPaintTile.id,
+                            options: {}
+                        } as DynamicTileData;
+                        break;
+                }
+
+                console.log(gameObject);
+
+                if (!gameObject) return;
+
+                this.app.addObject(gameObject);
+
+                const objectJSON = {
+                    type: this.selectedPaintTile.type,
+                    data: objectData,
+                    gameObject: gameObject
+                } as EditorLoadableObject;
+
+                this.objects.push(objectJSON);
+                
+                this.objectMap.set(
+                    objectMapKey,
+                    objectJSON
+                );
             }
-
-            console.log(gameObject);
-
-            if (!gameObject) return;
-
-            this.app.addObject(gameObject);
-
-            const objectJSON = {
-                type: this.selectedPaintTile.type,
-                data: objectData,
-                gameObject: gameObject
-            } as EditorLoadableObject;
-
-            this.objects.push(objectJSON);
-            
-            this.objectMap.set(
-                objectMapKey,
-                objectJSON
-            );
         }
         this.mouseDownOld = mouseDown;
         this.t++;
