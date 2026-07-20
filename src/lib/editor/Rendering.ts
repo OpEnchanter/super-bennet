@@ -11,12 +11,14 @@ export class TileRenderer extends Phoenix.Component {
 
     mesh: THREE.InstancedMesh | undefined;
 
+    oldScale: Phoenix.Vector2 = new Phoenix.Vector2(0,0);
+
     constructor(tileData: TileData) {
         super();
         this.tileData = tileData;
     }
 
-    public override onUpdate(): void {
+    public override onInitialized(): void {
         this.sprite = this.parent?.getComponent(Phoenix.Sprite);
 
         if (!this.sprite) return;
@@ -34,29 +36,12 @@ export class TileRenderer extends Phoenix.Component {
             transparent: true
         })
 
-        let positions: Array<Phoenix.Vector2> = [];
+        this.oldScale.x = this.tileData.scale.x;
+        this.oldScale.y = this.tileData.scale.y;
 
-        for (let x = 0; x < this.tileData.scale.x; x++) {
-            for (let y = 0; y < this.tileData.scale.y; y++) {
-                positions.push(new Phoenix.Vector2(
-                    this.tileData.position.x + x,
-                    this.tileData.position.y + y
-                ));
-            }
-        }
+        this.mesh = new THREE.InstancedMesh(geo, material, 5000);
 
-        this.mesh = new THREE.InstancedMesh(geo, material, positions.length);
-
-        for (let i = 0; i < positions.length; i++) {
-            const matrix = new THREE.Matrix4();
-            matrix.compose(
-                new THREE.Vector3(positions[i]!.x, positions[i]!.y, 1),
-                new THREE.Quaternion(),
-                new THREE.Vector3(1, 1, 1)
-            )
-
-            this.mesh.setMatrixAt(i, matrix);
-        }
+        this.resize();
 
         this.parent?.app.renderScene.add(this.mesh);
     }
@@ -68,6 +53,15 @@ export class TileRenderer extends Phoenix.Component {
         this.mesh?.dispose();
     }
 
+    public override onUpdate(): void {
+        if (this.tileData.scale.x !== this.oldScale.x || this.tileData.scale.y !== this.oldScale.y) {
+            this.resize();
+        }
+
+        this.oldScale.x = this.tileData.scale.x;
+        this.oldScale.y = this.tileData.scale.y;
+    }
+
     public resize() {
         if (!this.mesh) return;
 
@@ -76,8 +70,8 @@ export class TileRenderer extends Phoenix.Component {
         for (let x = 0; x < this.tileData.scale.x; x++) {
             for (let y = 0; y < this.tileData.scale.y; y++) {
                 positions.push(new Phoenix.Vector2(
-                    this.tileData.position.x + x,
-                    this.tileData.position.y + y
+                    this.tileData.position.x * 32 + x * 32,
+                    this.tileData.position.y * 32 - y * 32
                 ));
             }
         }
@@ -94,5 +88,7 @@ export class TileRenderer extends Phoenix.Component {
 
             this.mesh.setMatrixAt(i, matrix);
         }
+
+        this.mesh.instanceMatrix.needsUpdate = true;
     }
 }
