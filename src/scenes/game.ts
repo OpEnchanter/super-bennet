@@ -1,5 +1,5 @@
 import * as Phoenix from "phoenix";
-import { LevelLoader } from "../lib/Loader";
+import { LevelLoader } from "../lib/scene/Loader";
 
 class PlayerController extends Phoenix.Component {
     rigidbody: Phoenix.Rigidbody | undefined = undefined;
