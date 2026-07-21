@@ -12,7 +12,8 @@ import outlineFragmentShader from "./shader/outlineFragment.glsl";
 const tileConfig = TileConfig as Loader.TileConfigSchema;
 
 let muteTilePlaceEvents: boolean = false;
-let isResizing: boolean = false;
+let isResizingX: boolean = false;
+let isResizingY: boolean = false;
 let isMoving: boolean = false;
 let tileUpdateTimeout: number = 0;
 
@@ -57,6 +58,8 @@ class HorizontalRescaleHandle extends Phoenix.Component {
 
     targetPosition: Phoenix.Vector2 = new Phoenix.Vector2(32, 32);
 
+    targetScale: number = 0;
+
     setSelectedObject(selectedObject: EditorLoadableObject | undefined) {
         this.selectedObject = selectedObject;
     }
@@ -72,6 +75,8 @@ class HorizontalRescaleHandle extends Phoenix.Component {
 
     public override onUpdate(): void {
         if (this.selectedObject && this.selectedObject.type !== "dynamic") {
+            this.targetScale = 8;
+
             const selectedTileData = getTileData(this.selectedObject);
 
             this.targetPosition.x = 
@@ -84,8 +89,8 @@ class HorizontalRescaleHandle extends Phoenix.Component {
 
             const mousePos = this.parent?.app.getMousePos()!;
             const wsMousePos = new Phoenix.Vector2(
-                mousePos.x * 0.25 + this.parent!.app.camera.position.x, 
-                mousePos.y * 0.25 + this.parent!.app.camera.position.y
+                mousePos.x * (this.parent!.app.args.zoom!) + this.parent!.app.camera.position.x, 
+                mousePos.y * (this.parent!.app.args.zoom!) + this.parent!.app.camera.position.y
             );
 
             if (Math.sqrt(
@@ -110,10 +115,15 @@ class HorizontalRescaleHandle extends Phoenix.Component {
                 if ((this.selectedObject.data as TileData).scale.x < 1) {
                     (this.selectedObject.data as TileData).scale.x = 1;
                 }
-
-                isResizing = true;
             }
+
+            isResizingX = this.isDragging;
+        } else {
+            this.targetScale = 0;
         }
+        
+        this.transform!.scale.x += (this.targetScale - this.transform!.scale.x) / 4;
+        this.transform!.scale.y += (this.targetScale - this.transform!.scale.y) / 4;
     }
 }
 
@@ -125,6 +135,7 @@ class VerticalRescaleHandle extends Phoenix.Component {
     isDragging: boolean = false;
 
     targetPosition: Phoenix.Vector2 = new Phoenix.Vector2(32, 32);
+    targetScale: number = 0;
 
     setSelectedObject(selectedObject: EditorLoadableObject | undefined) {
         this.selectedObject = selectedObject;
@@ -141,6 +152,7 @@ class VerticalRescaleHandle extends Phoenix.Component {
 
     public override onUpdate(): void {
         if (this.selectedObject && this.selectedObject.type !== "dynamic") {
+            this.targetScale = 8;
             const selectedTileData = getTileData(this.selectedObject);
 
             this.targetPosition.x = 
@@ -153,8 +165,8 @@ class VerticalRescaleHandle extends Phoenix.Component {
 
             const mousePos = this.parent?.app.getMousePos()!;
             const wsMousePos = new Phoenix.Vector2(
-                mousePos.x * 0.25 + this.parent!.app.camera.position.x, 
-                mousePos.y * 0.25 + this.parent!.app.camera.position.y
+                mousePos.x * (this.parent!.app.args.zoom!) + this.parent!.app.camera.position.x, 
+                mousePos.y * (this.parent!.app.args.zoom!) + this.parent!.app.camera.position.y
             );
 
             if (Math.sqrt(
@@ -178,10 +190,15 @@ class VerticalRescaleHandle extends Phoenix.Component {
                 if ((this.selectedObject.data as TileData).scale.y < 1) {
                     (this.selectedObject.data as TileData).scale.y = 1;
                 }
-
-                isResizing = true;
             }
+
+            isResizingY = this.isDragging;
+        } else {
+            this.targetScale = 0;
         }
+
+        this.transform!.scale.x += (this.targetScale - this.transform!.scale.x) / 4;
+        this.transform!.scale.y += (this.targetScale - this.transform!.scale.y) / 4;
     }
 }
 
@@ -211,30 +228,34 @@ class SelectedObjectOverlay extends Phoenix.Component {
     }
 
     public override onUpdate(): void {
-        if (!this.selectedObject || !this.transform || !this.renderer) return;
-        const selectedTileData = getTileData(this.selectedObject);
+        if (!this.transform || !this.renderer) return;
+        if (this.selectedObject) {
+            const selectedTileData = getTileData(this.selectedObject);
 
-        this.targetPosition.x = 
-            selectedTileData.position.x * 32 + (selectedTileData.scale.x - 1) * 16;
-        this.targetPosition.y = 
-            selectedTileData.position.y * 32 - (selectedTileData.scale.y - 1) * 16;
+            this.targetPosition.x = 
+                selectedTileData.position.x * 32 + (selectedTileData.scale.x - 1) * 16;
+            this.targetPosition.y = 
+                selectedTileData.position.y * 32 - (selectedTileData.scale.y - 1) * 16;
 
-        this.transform.position.x += (this.targetPosition.x - this.transform.position.x) / 4;
-        this.transform.position.y += (this.targetPosition.y - this.transform.position.y) / 4;
+            this.transform.position.x += (this.targetPosition.x - this.transform.position.x) / 4;
+            this.transform.position.y += (this.targetPosition.y - this.transform.position.y) / 4;
 
-        this.targetScale.x = 
-            selectedTileData.scale.x * 32;
-        this.targetScale.y = 
-            selectedTileData.scale.y * 32;
+            this.targetScale.x = 
+                selectedTileData.scale.x * 32;
+            this.targetScale.y = 
+                selectedTileData.scale.y * 32;
 
-            
+            (this.renderer.mesh!.material as THREE.ShaderMaterial).uniforms.uOverlaySize!.value = {
+                x: this.transform.scale.x,
+                y: this.transform.scale.y
+            }
+        } else {
+            this.targetScale.x = 0;
+            this.targetScale.y = 0;
+        }
+
         this.transform.scale.x += (this.targetScale.x - this.transform.scale.x) / 4;
         this.transform.scale.y += (this.targetScale.y - this.transform.scale.y) / 4;
-
-        (this.renderer.mesh!.material as THREE.ShaderMaterial).uniforms.uOverlaySize!.value = {
-            x: this.transform.scale.x,
-            y: this.transform.scale.y
-        }
     }
 }
 
@@ -246,6 +267,8 @@ class ObjectMoveHandler extends Phoenix.Component {
     isDragging: boolean = false;
 
     dragOffset: Phoenix.Vector2 = new Phoenix.Vector2(0, 0);
+
+    keyboardUpdateTimeout: number = 0;
 
     setSelectedObject(selectedObject: EditorLoadableObject | undefined) {
         this.selectedObject = selectedObject;
@@ -264,19 +287,21 @@ class ObjectMoveHandler extends Phoenix.Component {
         if (this.selectedObject) {
             const mousePos = this.parent?.app.getMousePos()!;
             const wsMousePos = new Phoenix.Vector2(
-                mousePos.x * 0.25 + this.parent!.app.camera.position.x, 
-                mousePos.y * 0.25 + this.parent!.app.camera.position.y
+                mousePos.x * (this.parent!.app.args.zoom!) + this.parent!.app.camera.position.x, 
+                mousePos.y * (this.parent!.app.args.zoom!) + this.parent!.app.camera.position.y
             );
 
             const selectedTileData = getTileData(this.selectedObject);
 
+
+            // Mouse-based movement
             if (
-                wsMousePos.x > selectedTileData.position.x * 32 - 16 && 
-                wsMousePos.y < selectedTileData.position.y * 32 - 16 &&
-                wsMousePos.x < selectedTileData.position.x * 32 - 16 + selectedTileData.scale.x * 32 && 
-                wsMousePos.y > selectedTileData.position.y * 32 - 16 - selectedTileData.scale.y * 32 &&
+                wsMousePos.x >= selectedTileData.position.x * 32 - 16 && 
+                wsMousePos.y <= (selectedTileData.position.y + 1) * 32 - 16 &&
+                wsMousePos.x <= selectedTileData.position.x * 32 - 16 + selectedTileData.scale.x * 32 && 
+                wsMousePos.y >= (selectedTileData.position.y + 1) * 32 - 16 - selectedTileData.scale.y * 32 &&
                 this.parent?.app.getMouseDown() &&
-                !this.isDragging && !isResizing
+                !this.isDragging && !isResizingX && !isResizingY
             ) {
                 this.isDragging = true;
                 this.dragOffset.x = selectedTileData.position.x * 32 - wsMousePos.x;
@@ -294,8 +319,33 @@ class ObjectMoveHandler extends Phoenix.Component {
                 (this.selectedObject.data as TileData).position.y = 
                     Math.round((wsMousePos.y + this.dragOffset.y) / 32);
 
-                isMoving = true;
+                muteTilePlaceEvents = true;
             }
+
+            isMoving = this.isDragging;
+
+            // Keyboard-based movement
+            const timeout = 10;
+
+            if (this.keyboardUpdateTimeout < 0) {
+                if (this.parent?.app.getKey("ArrowUp")) {
+                    (this.selectedObject.data as TileData).position.y += 1;
+                    this.keyboardUpdateTimeout = timeout;
+                } else if (this.parent?.app.getKey("ArrowDown")) {
+                    (this.selectedObject.data as TileData).position.y -= 1;
+                    this.keyboardUpdateTimeout = timeout;
+                }
+
+                if (this.parent?.app.getKey("ArrowLeft")) {
+                    (this.selectedObject.data as TileData).position.x -= 1;
+                    this.keyboardUpdateTimeout = timeout;
+                } else if (this.parent?.app.getKey("ArrowRight")) {
+                    (this.selectedObject.data as TileData).position.x += 1;
+                    this.keyboardUpdateTimeout = timeout;
+                }
+            }
+
+            this.keyboardUpdateTimeout--;
         }
     }
 }
@@ -406,8 +456,6 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
     public override onUpdate(): void {
         muteTilePlaceEvents = false;
-        isResizing = false;
-        isMoving = false;
     }
 
     public override onLateUpdate(): void {
@@ -418,12 +466,12 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
             const mpWorldSpace = new Phoenix.Vector2(
                 Math.round((
-                    mp.x * 0.25 + 
+                    mp.x * (this.parent!.app.args.zoom!) + 
                     this.transform.globalPosition.x
                 ) / 32),
                 
                 Math.round((
-                    mp.y * 0.25 + 
+                    mp.y * (this.parent!.app.args.zoom!) + 
                     this.transform.globalPosition.y
                 ) / 32)
                     
@@ -453,6 +501,25 @@ export class SceneManipulationHandler extends Phoenix.Component {
                     ?.getComponent(ObjectMoveHandler)
                     ?.setSelectedObject(this.selectedObject);
 
+            } else if (this.selectedObject !== undefined) {
+                this.selectedObject = undefined;
+
+                // Update selectedObject on scaling handles
+                this.objectScaleXHandle
+                    ?.getComponent(HorizontalRescaleHandle)
+                    ?.setSelectedObject(this.selectedObject);
+
+                this.objectScaleYHandle
+                    ?.getComponent(VerticalRescaleHandle)
+                    ?.setSelectedObject(this.selectedObject);
+
+                this.selectedObjectOverlay
+                    ?.getComponent(SelectedObjectOverlay)
+                    ?.setSelectedObject(this.selectedObject);
+
+                this.selectedObjectOverlay
+                    ?.getComponent(ObjectMoveHandler)
+                    ?.setSelectedObject(this.selectedObject);
             } else {
                 let objectData: Object = {};
                 let gameObject: Phoenix.GameObject | undefined = undefined;
@@ -540,6 +607,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
     }
 
     updateObjectMap() {
+        this.objectMap.clear();
         for (const object of this.objects) {
             if (object.type === "tile" || object.type === "tileset") {
                 const tileData = getTileData(object);

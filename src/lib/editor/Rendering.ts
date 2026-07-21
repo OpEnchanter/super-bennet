@@ -78,8 +78,8 @@ export class TileRenderer extends Phoenix.Component {
         for (let x = 0; x < this.tileData.scale.x; x++) {
             for (let y = 0; y < this.tileData.scale.y; y++) {
                 positions.push(new Phoenix.Vector2(
-                    this.tileData.position.x * 32 + x * 32,
-                    this.tileData.position.y * 32 - y * 32
+                    x * 32,
+                    -y * 32
                 ));
             }
         }
@@ -98,5 +98,10 @@ export class TileRenderer extends Phoenix.Component {
         }
 
         this.mesh.instanceMatrix.needsUpdate = true;
+
+        this.mesh.position.set(
+            this.tileData.position.x * 32,
+            this.tileData.position.y * 32
+        )
     }
 }

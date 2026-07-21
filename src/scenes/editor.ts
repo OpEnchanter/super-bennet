@@ -55,7 +55,7 @@ class GridRenderer extends Phoenix.Component {
     public override onInitialized(): void {
         this.transform = this.parent?.getComponent(Phoenix.Transform);
 
-        this.gridHelper = new THREE.GridHelper(640, 20, 0x000000, 0x000000);
+        this.gridHelper = new THREE.GridHelper(1280, 40, 0x2acdbc, 0x2acdbc);
         this.gridHelper.setRotationFromEuler(new THREE.Euler(Math.PI / 2, 0, 0))
         this.parent?.app.renderScene.add(this.gridHelper);
     }
