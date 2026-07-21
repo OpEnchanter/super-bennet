@@ -119,7 +119,7 @@
 
     "nanoid": ["nanoid@3.3.15", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA=="],
 
-    "phoenix": ["phoenix@github:openchanter/phoenix#7aa182a", { "dependencies": { "chalk": "^5.6.2", "planck": "^1.5.0", "three": "^0.184.0", "vite": "^8.0.16" }, "peerDependencies": { "typescript": "^5" } }, "OpEnchanter-phoenix-7aa182a", "sha512-JaUKhhbZc+n5ks6A8LrKGd34HqpCj+570pjr8g/pEqWz990Yg/6LcqK5+qZQNJ+MJcu0Xf9Fekp+Yz533xrNNA=="],
+    "phoenix": ["phoenix@github:openchanter/phoenix#bb92115", { "dependencies": { "chalk": "^5.6.2", "planck": "^1.5.0", "three": "^0.184.0", "vite": "^8.0.16" }, "peerDependencies": { "typescript": "^5" } }, "OpEnchanter-phoenix-bb92115", "sha512-CptESPKC1/huAagKfgYEV79kFKieHnernceKrYZTY+0ARo3KckY8oJ+d9bLeGRV+YQ8A0xQ1+CfQ+VBN6V6oEA=="],
 
     "picocolors": ["picocolors@1.1.1", "", {}, "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="],
 

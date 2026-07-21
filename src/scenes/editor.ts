@@ -251,7 +251,9 @@ export class Scene extends Phoenix.Scene {
             ),
             saveButtonText,
             new Phoenix.Button(() => {
-                console.log(serializeEditorScene(objects))
+                const data = serializeEditorScene(objects);
+                console.log(data);
+                navigator.clipboard.writeText(data);
             }),
             new Phoenix.UIRenderer(2)
         ))

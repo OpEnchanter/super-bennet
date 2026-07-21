@@ -235,9 +235,9 @@ class SelectedObjectOverlay extends Phoenix.Component {
             const selectedTileData = getTileData(this.selectedObject);
 
             this.targetPosition.x = 
-                selectedTileData.position.x * 32 + (selectedTileData.scale.x - 1) * 16;
+                selectedTileData.position.x * 32 + (this.selectedObject.type !== "dynamic" ? (selectedTileData.scale.x - 1) * 16 : 0);
             this.targetPosition.y = 
-                selectedTileData.position.y * 32 - (selectedTileData.scale.y - 1) * 16;
+                selectedTileData.position.y * 32 - (this.selectedObject.type !== "dynamic" ? (selectedTileData.scale.y - 1) * 16 : 0);
 
             this.transform.position.x += (this.targetPosition.x - this.transform.position.x) / 4;
             this.transform.position.y += (this.targetPosition.y - this.transform.position.y) / 4;

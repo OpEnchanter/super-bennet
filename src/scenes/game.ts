@@ -1,5 +1,6 @@
 import * as Phoenix from "phoenix";
 import { LevelLoader } from "../lib/scene/Loader";
+import * as THREE from "three";
 
 class PlayerController extends Phoenix.Component {
     rigidbody: Phoenix.Rigidbody | undefined = undefined;
@@ -8,6 +9,11 @@ class PlayerController extends Phoenix.Component {
     moveSpeed: number;
     airMoveSpeed: number;
     jumpForce: number;
+
+    jumpTimeout: number = 0;
+    preJumpTimeout: number = 0;
+
+    groundedOld = false;
 
     constructor (moveSpeed: number, airMoveSpeed: number, jumpForce: number) {
         super()
@@ -26,18 +32,20 @@ class PlayerController extends Phoenix.Component {
         if (!this.rigidbody || !this.transform || !this.sprite) return;
         let grounded = false;
 
-        const rayPositions = [-1, -0.375, 0, 0.375, 1]
+        const rayPositions = [-0.375, 0, 0.375]
 
         for (const p of rayPositions) {
             const leftPos = {
                 x: (this.rigidbody.body!.getPosition().x + p),
-                y: (this.rigidbody.body!.getPosition().y - 0.2)
+                y: (this.rigidbody.body!.getPosition().y)
             }
             
             this.parent?.app.plWorld.rayCast(leftPos, {
                 x: leftPos.x,
-                y: leftPos.y - 0.6
+                y: leftPos.y - 1
             }, (fixture, point, normal, fraction) => {
+
+                grounded = true;
 
                 if (fixture.getBody() == this.rigidbody?.body) {
                     return 1;
@@ -45,7 +53,7 @@ class PlayerController extends Phoenix.Component {
 
                 if (fixture.isSensor()) return 1
 
-                if (normal.y > 0.5) {
+                if (normal.y > 0){
                     grounded = true;
                     return fraction;
                 }
@@ -54,19 +62,83 @@ class PlayerController extends Phoenix.Component {
             })
         }
 
+        if (grounded) {
+            this.rigidbody.body?.setLinearVelocity({
+                x: this.rigidbody.body.getLinearVelocity().x * 0.95,
+                y: this.rigidbody.body.getLinearVelocity().y * 0.95
+            })
+        }
+
+        if (grounded && !this.groundedOld) {
+            this.preJumpTimeout = 5;
+        }
+
         const movementSpeed = grounded ? this.moveSpeed : this.airMoveSpeed;
         
         if (this.parent?.app.getKey("a")) {
-            this.rigidbody.body?.setLinearVelocity(
-                {x: this.rigidbody.body.getLinearVelocity().x-movementSpeed, y: this.rigidbody.body.getLinearVelocity().y},
-            )
+
+            const raycastHeights = [0.25, 0, -0.25]
+
+            let objectBlocking = false;
+            for (const h of raycastHeights) {
+                this.parent.app.plWorld.rayCast(
+                    {x: this.rigidbody.body!.getPosition().x - 0.375, y: this.rigidbody.body!.getPosition().y + h},
+                    {x: this.rigidbody.body!.getPosition().x - 0.4375, y: this.rigidbody.body!.getPosition().y + h}, 
+                    (fixture, point, normal, fraction) => {
+                        if (fixture.getBody() == this.rigidbody?.body) {
+                            return 1;
+                        }
+
+                        if (fixture.isSensor()) return 1
+
+                        if (Math.abs(normal.x) > 0.5) {
+                            objectBlocking = true;
+                            return fraction;
+                        }
+
+                        return 1;
+                    }
+                );
+            }
+
+            if (!objectBlocking) {
+                this.rigidbody.body?.setLinearVelocity(
+                    {x: this.rigidbody.body.getLinearVelocity().x-movementSpeed, y: this.rigidbody.body.getLinearVelocity().y},
+                )
+            }
         } else if (this.parent?.app.getKey("d")) {
-            this.rigidbody.body?.setLinearVelocity(
-                {x: this.rigidbody.body.getLinearVelocity().x+movementSpeed, y: this.rigidbody.body.getLinearVelocity().y},
-            )
+            const raycastHeights = [0.25, 0, -0.25]
+
+            let objectBlocking = false;
+            for (const h of raycastHeights) {
+                this.parent.app.plWorld.rayCast(
+                    {x: this.rigidbody.body!.getPosition().x + 0.375, y: this.rigidbody.body!.getPosition().y},
+                    {x: this.rigidbody.body!.getPosition().x + 0.4375, y: this.rigidbody.body!.getPosition().y}, 
+                    (fixture, point, normal, fraction) => {
+                        if (fixture.getBody() == this.rigidbody?.body) {
+                            return 1;
+                        }
+
+                        if (fixture.isSensor()) return 1
+
+                        if (Math.abs(normal.x) > 0.5) {
+                            objectBlocking = true;
+                            return fraction;
+                        }
+
+                        return 1;
+                    }
+                );
+            }
+
+            if (!objectBlocking) {
+                this.rigidbody.body?.setLinearVelocity(
+                    {x: this.rigidbody.body.getLinearVelocity().x+movementSpeed, y: this.rigidbody.body.getLinearVelocity().y},
+                )
+            }
         }
 
-        if (this.parent?.app.getKey("w") && grounded) {
+        if (this.parent?.app.getKey("w") && grounded && this.jumpTimeout < 0 && this.preJumpTimeout < 0) {
             this.rigidbody.body?.applyLinearImpulse(
                 {x: 0, y: this.jumpForce},
                 {
@@ -74,7 +146,11 @@ class PlayerController extends Phoenix.Component {
                     y: this.rigidbody.body.getPosition().y
                 }
             )
+            this.jumpTimeout = 20;
         }
+
+        this.jumpTimeout--;
+        this.preJumpTimeout--;
 
         if (Math.abs(this.rigidbody.body!.getLinearVelocity().x) > 0) {
             this.sprite.setAnimation("running");
@@ -98,6 +174,8 @@ class PlayerController extends Phoenix.Component {
 
         this.transform.globalPosition.x = Math.floor(this.transform.globalPosition.x / 2) * 2
         this.transform.globalPosition.y = Math.floor(this.transform.globalPosition.y / 2) * 2
+
+        this.groundedOld = grounded;
     }
 }
 
@@ -122,8 +200,8 @@ class CameraController extends Phoenix.Component {
     public override onUpdate(): void {
         if (!this.transform || !this.targetTransform || !this.targetRigidbody) return;
 
-        const targetX = this.targetTransform.globalPosition.x + this.targetRigidbody.body!.getLinearVelocity().x * 6;
-        const targetY = this.targetTransform.globalPosition.y + this.targetRigidbody.body!.getLinearVelocity().y * 6;
+        const targetX = this.targetTransform.globalPosition.x + this.targetRigidbody.body!.getLinearVelocity().x * 2;
+        const targetY = this.targetTransform.globalPosition.y + this.targetRigidbody.body!.getLinearVelocity().y * 2;
         
         this.transform.position.x += 
             (targetX - this.transform.globalPosition.x) / 8
@@ -157,9 +235,9 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Vector2(24, 32)
             ),
 
-            new Phoenix.Rigidbody(20, 10, false, true),
+            new Phoenix.Rigidbody(20, 1, false, true),
 
-            new PlayerController(0.7, 0.3, 60)
+            new PlayerController(0.7, 0.3, 140)
         );
 
         const camera = app.createObject(
@@ -176,6 +254,6 @@ export class Scene extends Phoenix.Scene {
         app.addObject(camera);
 
         const loader: LevelLoader = new LevelLoader(app);
-        loader.loadFromString('{"objects":[{"type":"tile","data":{"position":{"x":-2,"y":-1},"scale":{"x":6,"y":1},"sprite":"brick","hasCollision":true}}]}')
+        loader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-6,"y":-1},"scale":{"x":13,"y":4},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":2,"y":2},"scale":{"x":5,"y":5},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":3},"scale":{"x":3,"y":1},"sprite":"stone_brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":-6,"y":3},"scale":{"x":1,"y":1},"sprite":"stone_brick","hasCollision":true}}]}')
     }
 }

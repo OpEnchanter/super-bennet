@@ -353,10 +353,21 @@ export class LevelLoader {
                 {x: bounds.position.x + bounds.scale.x - 0.5, y: bounds.position.y + 0.5 - bounds.scale.y}
             )
 
+            const volume = pl.Box(
+                bounds.scale.x / 2 - 0.1,
+                bounds.scale.y / 2 - 0.1,
+                {
+                    x: bounds.position.x + (bounds.scale.x / 2 - 0.5),
+                    y: bounds.position.y - (bounds.scale.y / 2 - 0.5)
+                }
+            )
+
             this.levelBody.createFixture({shape: topEdge})
             this.levelBody.createFixture({shape: bottomEdge})
             this.levelBody.createFixture({shape: leftEdge})
             this.levelBody.createFixture({shape: rightEdge})
+
+            this.levelBody.createFixture({shape:volume})
         }
     }
 }
