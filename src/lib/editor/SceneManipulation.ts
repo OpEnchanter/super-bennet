@@ -3,13 +3,14 @@ import type { EditorLoadableObject, SelectedPaintTileSchema } from "./Types";
 import * as Loader from "../scene/Loader"
 import TileConfig from "../tileset.json";
 import type { TileData, TileSetData, DynamicTileData } from "../scene/Types";
-import { TileRenderer } from "./Rendering";
+import { DynamicTileRenderer, TileRenderer, TileSetRenderer } from "./Rendering";
+import type { TileConfigSchema } from "../scene/Types";
 
 import * as THREE from "three";
 
 import outlineFragmentShader from "./shader/outlineFragment.glsl";
 
-const tileConfig = TileConfig as Loader.TileConfigSchema;
+const tileConfig = TileConfig as TileConfigSchema;
 
 let muteTilePlaceEvents: boolean = false;
 let isResizingX: boolean = false;
@@ -38,7 +39,7 @@ function getTileData(object: EditorLoadableObject) {
             break;
         case ("dynamic"):
             const selectedDynamicObjectData: Loader.DynamicTileSchema = 
-                tileConfig.dynamicTiles[object!.type]!;
+                tileConfig.dynamicTiles[(object.data as DynamicTileData).name]!;
 
             selectedTileData = {
                 position: selectedObjectData.position,
@@ -566,6 +567,19 @@ export class SceneManipulationHandler extends Phoenix.Component {
                             sprite: this.selectedPaintTile.id,
                             hasCollision: true
                         } as TileSetData;
+
+                        gameObject = this.app.createObject(
+                            new Phoenix.Transform(
+                                new Phoenix.Vector2(
+                                    mpWorldSpace.x * 32,
+                                    mpWorldSpace.y * 32
+                                ),
+                                0,
+                                new Phoenix.Vector2(32, 32)
+                            ),
+
+                            new TileSetRenderer(objectData as TileData)
+                        );
                         break;
                     case "dynamic":
                         objectData = {
@@ -576,6 +590,20 @@ export class SceneManipulationHandler extends Phoenix.Component {
                             name: this.selectedPaintTile.id,
                             options: {}
                         } as DynamicTileData;
+
+                        gameObject = this.app.createObject(
+                            new Phoenix.Transform(
+                                new Phoenix.Vector2(
+                                    mpWorldSpace.x * 32,
+                                    mpWorldSpace.y * 32
+                                ),
+                                0,
+                                new Phoenix.Vector2(32, 32)
+                            ),
+
+                            new Phoenix.Sprite(tileConfig.dynamicTiles[(objectData as DynamicTileData).name].sprite),
+                            new DynamicTileRenderer(objectData as DynamicTileData)
+                        );
                         break;
                 }
 
@@ -621,6 +649,13 @@ export class SceneManipulationHandler extends Phoenix.Component {
                         )
                     }
                 }
+            } else {
+                const tileData = getTileData(object);
+                const objectMapKey = `${tileData.position.x},${tileData.position.y}`
+                this.objectMap.set(
+                    objectMapKey,
+                    object
+                )
             }
         }
     }

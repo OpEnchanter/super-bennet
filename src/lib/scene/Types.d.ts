@@ -42,3 +42,9 @@ export type ObjectBounds = {
     position: {x:number, y:number},
     scale: {x:number, y:number}
 }
+
+export type TileConfigSchema = {
+    tiles: Record<string, string>,
+    tileSets: Record<string, TileSetSchema>,
+    dynamicTiles: Record<string, DynamicTileSchema>
+}

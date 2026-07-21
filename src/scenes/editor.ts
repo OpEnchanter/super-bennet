@@ -5,6 +5,7 @@ import * as Loader from "../lib/scene/Loader";
 import type { EditorLoadableObject, SelectedPaintTileSchema } from "../lib/editor/Types";
 import { SceneManipulationHandler } from "../lib/editor/SceneManipulation";
 import { ButtonAnimator } from "../lib/editor/UIComponents";
+import type { TileConfigSchema } from "../lib/scene/Types";
 
 class CameraController extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -46,7 +47,7 @@ class CameraController extends Phoenix.Component {
     }
 }
 
-const tileConfig = TileConfig as Loader.TileConfigSchema;
+const tileConfig = TileConfig as TileConfigSchema;
 
 class GridRenderer extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -302,7 +303,7 @@ export class Scene extends Phoenix.Scene {
 
                 new Phoenix.Button(() => {
                     selectedPaintTileSprite.updateSprite(data[0]![1]!)
-                    selectedPaintTile.type = "tilset"
+                    selectedPaintTile.type = "tileset"
                     selectedPaintTile.id = name
                 }),
 

@@ -6,7 +6,8 @@ import type {
     TileSetData,
     DynamicTileData,
     LoadableObject,
-    ObjectBounds
+    ObjectBounds,
+    TileConfigSchema
 } from "./Types"
 
 const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = {
@@ -37,12 +38,6 @@ export type DynamicTileSchema = {
     sprite: string,
     scale: {x:number, y:number},
     options: Object
-}
-
-export type TileConfigSchema = {
-    tiles: Record<string, string>,
-    tileSets: Record<string, TileSetSchema>,
-    dynamicTiles: Record<string, DynamicTileSchema>
 }
 
 type JSONWorld = {
