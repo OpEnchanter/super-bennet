@@ -159,19 +159,19 @@ export class LevelLoader {
                             i*32, 
                             0
                         ));
-
-                        const object = this.app.createObject(
-                            new Phoenix.Transform(
-                                new Phoenix.Vector2(tileData.position.x * 32 + 32, tileData.position.y * 32),
-                                0,
-                                new Phoenix.Vector2(32, 32)
-                            ),
-                            new Phoenix.Sprite(tileSet[0]![1]!),
-                            new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        this.levelRootObject.addChild(object);
+                    
                     }
+                    const object = this.app.createObject(
+                        new Phoenix.Transform(
+                            new Phoenix.Vector2(tileData.position.x * 32 + 32, tileData.position.y * 32),
+                            0,
+                            new Phoenix.Vector2(32, 32)
+                        ),
+                        new Phoenix.Sprite(tileSet[0]![1]!),
+                        new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
+                    )
+
+                    this.levelRootObject.addChild(object);
                 }
 
                 positions = [];
@@ -180,23 +180,23 @@ export class LevelLoader {
                         positions.push(new Phoenix.Vector2(
                             i*32, 
                             0
-                        ));
-
-                        const object = this.app.createObject(
-                            new Phoenix.Transform(
-                                new Phoenix.Vector2(
-                                    tileData.position.x * 32 + 32, 
-                                    tileData.position.y * 32 - (tileData.scale.y - 1) * 32
-                                ),
-                                0,
-                                new Phoenix.Vector2(32, 32)
-                            ),
-                            new Phoenix.Sprite(tileSet[2]![1]!),
-                            new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        this.levelRootObject.addChild(object);
+                        ));                        
                     }
+
+                    const object = this.app.createObject(
+                        new Phoenix.Transform(
+                            new Phoenix.Vector2(
+                                tileData.position.x * 32 + 32, 
+                                tileData.position.y * 32 - (tileData.scale.y - 1) * 32
+                            ),
+                            0,
+                            new Phoenix.Vector2(32, 32)
+                        ),
+                        new Phoenix.Sprite(tileSet[2]![1]!),
+                        new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
+                    )
+
+                    this.levelRootObject.addChild(object);
                 }
 
                 edgeLength = Math.max(0, tileData.scale.y - 2);
@@ -205,21 +205,21 @@ export class LevelLoader {
                     for (let i = 0; i < edgeLength; i++) {
                         positions.push(new Phoenix.Vector2(
                             0, 
-                            i*32
+                            -i*32
                         ));
-
-                        const object = this.app.createObject(
-                            new Phoenix.Transform(
-                                new Phoenix.Vector2(tileData.position.x * 32, tileData.position.y * 32 - 32),
-                                0,
-                                new Phoenix.Vector2(32, 32)
-                            ),
-                            new Phoenix.Sprite(tileSet[1]![0]!),
-                            new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        this.levelRootObject.addChild(object);
                     }
+
+                    const object = this.app.createObject(
+                        new Phoenix.Transform(
+                            new Phoenix.Vector2(tileData.position.x * 32, tileData.position.y * 32 - 32),
+                            0,
+                            new Phoenix.Vector2(32, 32)
+                        ),
+                        new Phoenix.Sprite(tileSet[1]![0]!),
+                        new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
+                    )
+
+                    this.levelRootObject.addChild(object);
                 }
 
                 positions = [];
@@ -227,24 +227,24 @@ export class LevelLoader {
                     for (let i = 0; i < edgeLength; i++) {
                         positions.push(new Phoenix.Vector2(
                             0, 
-                            i*32
+                            -i*32
                         ));
-
-                        const object = this.app.createObject(
-                            new Phoenix.Transform(
-                                new Phoenix.Vector2(
-                                    tileData.position.x * 32 + (tileData.scale.x - 1) * 32, 
-                                    tileData.position.y * 32 - 32
-                                ),
-                                0,
-                                new Phoenix.Vector2(32, 32)
-                            ),
-                            new Phoenix.Sprite(tileSet[1]![0]!),
-                            new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
-                        )
-
-                        this.levelRootObject.addChild(object);
+                    
                     }
+                    const object = this.app.createObject(
+                        new Phoenix.Transform(
+                            new Phoenix.Vector2(
+                                tileData.position.x * 32 + (tileData.scale.x - 1) * 32, 
+                                tileData.position.y * 32 - 32
+                            ),
+                            0,
+                            new Phoenix.Vector2(32, 32)
+                        ),
+                        new Phoenix.Sprite(tileSet[1]![0]!),
+                        new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
+                    )
+
+                    this.levelRootObject.addChild(object);
                 }
 
                 // Center
@@ -256,7 +256,7 @@ export class LevelLoader {
                         for (let y = 0; y < cy; y++) {
                             positions.push(new Phoenix.Vector2(
                                 x*32,
-                                y*32
+                                -y*32
                             ))
                         }
                     }

@@ -17,6 +17,7 @@ let isResizingX: boolean = false;
 let isResizingY: boolean = false;
 let isMoving: boolean = false;
 let tileUpdateTimeout: number = 0;
+let tilePlaceTimeout: number = 0;
 
 function getTileData(object: EditorLoadableObject) {
     let selectedTileData: {
@@ -249,7 +250,9 @@ class SelectedObjectOverlay extends Phoenix.Component {
             (this.renderer.mesh!.material as THREE.ShaderMaterial).uniforms.uOverlaySize!.value = {
                 x: this.transform.scale.x,
                 y: this.transform.scale.y
-            }
+            };
+
+            (this.renderer.mesh!.material as THREE.ShaderMaterial).uniforms.uShowGaps!.value = this.selectedObject.type !== "dynamic";
         } else {
             this.targetScale.x = 0;
             this.targetScale.y = 0;
@@ -447,7 +450,8 @@ export class SceneManipulationHandler extends Phoenix.Component {
                 fragmentShader: outlineFragmentShader, 
                 vertexShader: Phoenix.DefaultVertexShader, 
                 uniforms: {
-                    uOverlaySize: {value: {x: 64, y: 32}}
+                    uOverlaySize: {value: {x: 64, y: 32}},
+                    uShowGaps: { value: true }
                 }
             })
         )
@@ -521,7 +525,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
                 this.selectedObjectOverlay
                     ?.getComponent(ObjectMoveHandler)
                     ?.setSelectedObject(this.selectedObject);
-            } else {
+            } else if (tilePlaceTimeout < 0) {
                 let objectData: Object = {};
                 let gameObject: Phoenix.GameObject | undefined = undefined;
 
@@ -625,13 +629,18 @@ export class SceneManipulationHandler extends Phoenix.Component {
             }
         }
 
-        if (muteTilePlaceEvents) {
+        if (muteTilePlaceEvents || isResizingX || isResizingY || isMoving) {
             this.updateObjectMap();
         }
 
         this.mouseDownOld = mouseDown;
         this.t++;
         tileUpdateTimeout--;
+        tilePlaceTimeout--;
+    }
+
+    setTilePlaceTimeout(time: number) {
+        tilePlaceTimeout = time;
     }
 
     updateObjectMap() {

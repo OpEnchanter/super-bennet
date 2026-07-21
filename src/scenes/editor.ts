@@ -6,6 +6,7 @@ import type { EditorLoadableObject, SelectedPaintTileSchema } from "../lib/edito
 import { SceneManipulationHandler } from "../lib/editor/SceneManipulation";
 import { ButtonAnimator } from "../lib/editor/UIComponents";
 import type { TileConfigSchema } from "../lib/scene/Types";
+import { serializeEditorScene } from "../lib/editor/Serialization";
 
 class CameraController extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -133,6 +134,8 @@ export class Scene extends Phoenix.Scene {
         let selectedObject: EditorLoadableObject | undefined;
 
         // Camera
+        const sceneManipulationHandler = new SceneManipulationHandler(app, selectedPaintTile, selectedObject, objectMap, objects);
+
         app.addObject(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(0, 0),
@@ -142,7 +145,7 @@ export class Scene extends Phoenix.Scene {
             new Phoenix.Camera(),
             new CameraController(2.5, 2),
             new GridRenderer(),
-            new SceneManipulationHandler(app, selectedPaintTile, selectedObject, objectMap, objects)
+            sceneManipulationHandler
         ));
 
         // Selected Object-To-Place Indicator
@@ -159,6 +162,17 @@ export class Scene extends Phoenix.Scene {
             new SelectedPaintTileIndicator(),
 
             new Phoenix.UIRenderer(3)
+        ))
+
+        // Start position flag
+        app.addObject(app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(0, 0),
+                0,
+                new Phoenix.Vector2(32, 32)
+            ),
+            new Phoenix.Sprite("assets/tiles/editor/flag.png"),
+            new Phoenix.Renderer(4)
         ))
 
         // Add menu
@@ -182,6 +196,10 @@ export class Scene extends Phoenix.Scene {
             ),
 
             new Phoenix.CanvasSprite(canvas),
+
+            new Phoenix.Button(() => {
+                sceneManipulationHandler.setTilePlaceTimeout(10);
+            }),
 
             new Phoenix.UIRenderer(0)
         );
@@ -209,10 +227,35 @@ export class Scene extends Phoenix.Scene {
             ),
             quitButtonText,
             new Phoenix.Button(() => {
-                app.loadScene("title")
+                app.loadScene("title");
             }),
             new Phoenix.UIRenderer(2)
         ))
+
+        const saveButtonText = new Phoenix.TextSprite("Export", {
+            fontSize: 24,
+            padding: 8,
+            fontColor: "#afafaf",
+            backgroundColor: "#040404",
+            backgroundWidth: (500 - menuPadding * 2 - menuSpacing) / 2
+        })
+
+        menu.addChild(app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    -250 + saveButtonText.texture!.width * 1.5 + menuPadding * 2,
+                    curUIY
+                ),
+                0,
+                new Phoenix.Vector2(saveButtonText.texture!.width, saveButtonText.texture!.height)
+            ),
+            saveButtonText,
+            new Phoenix.Button(() => {
+                console.log(serializeEditorScene(objects))
+            }),
+            new Phoenix.UIRenderer(2)
+        ))
+
         curUIY -= quitButtonText.texture!.height / 2
 
 
@@ -250,9 +293,10 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Sprite(sprite),
 
                 new Phoenix.Button(() => {
-                    selectedPaintTileSprite.updateSprite(sprite)
-                    selectedPaintTile.type = "tile"
-                    selectedPaintTile.id = name
+                    sceneManipulationHandler.setTilePlaceTimeout(10);
+                    selectedPaintTileSprite.updateSprite(sprite);
+                    selectedPaintTile.type = "tile";
+                    selectedPaintTile.id = name;
                 }),
 
                 new ButtonAnimator(),
@@ -302,6 +346,7 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Sprite(data[0]![1]!),
 
                 new Phoenix.Button(() => {
+                    sceneManipulationHandler.setTilePlaceTimeout(10);
                     selectedPaintTileSprite.updateSprite(data[0]![1]!)
                     selectedPaintTile.type = "tileset"
                     selectedPaintTile.id = name
@@ -354,6 +399,7 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Sprite(data.sprite),
 
                 new Phoenix.Button(() => {
+                    sceneManipulationHandler.setTilePlaceTimeout(10);
                     selectedPaintTileSprite.updateSprite(data.sprite)
                     selectedPaintTile.type = "dynamic"
                     selectedPaintTile.id = name

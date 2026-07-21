@@ -3,6 +3,7 @@ in vec2 fragTexCoord;
 uniform sampler2D uTex;
 uniform vec2 uOverlaySize;
 uniform float time;
+uniform bool uShowGaps;
 
 out vec4 fragColor;
 
@@ -10,8 +11,10 @@ void main() {
 
     vec2 texSize = vec2(textureSize(uTex, 0));
 
-    const float borderSize = 2.0;
-    const float handleGap = 10.0;
+    float borderSize = 2.0;
+    float handleGap = 10.0;
+    
+    if (!uShowGaps) { handleGap = 0.0; }
 
     vec4 highlightColor = vec4(0.0, 0.0, 0.0, 0.4);
 

@@ -176,35 +176,6 @@ export class Scene extends Phoenix.Scene {
         app.addObject(camera);
 
         const loader: LevelLoader = new LevelLoader(app);
-        loader.loadFromJson({
-            objects: [
-                {
-                    type: "tile",
-                    data: {
-                        position: {x:4, y:-1},
-                        scale: {x: 4, y:3},
-                        sprite: "brick",
-                        hasCollision: true
-                    }
-                },
-                {
-                    type: "tile",
-                    data: {
-                        position: {x:0, y:-1},
-                        scale: {x: 4, y:3},
-                        sprite: "stone_brick",
-                        hasCollision: true
-                    }
-                },
-                {
-                    type: "dynamic",
-                    data: {
-                        position: {x:3, y:2},
-                        name: "phys_cube",
-                        options: {}
-                    }
-                }
-            ]
-        })
+        loader.loadFromString('{"objects":[{"type":"tile","data":{"position":{"x":-2,"y":-1},"scale":{"x":6,"y":1},"sprite":"brick","hasCollision":true}}]}')
     }
 }

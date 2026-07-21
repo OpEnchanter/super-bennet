@@ -49,13 +49,16 @@ export class TileRenderer extends Phoenix.Component {
 
         this.retransform();
 
-        this.parent?.app.renderScene.add(this.mesh);
-
         this.targetPosition.x = this.tileData.position.x * 32;
         this.targetPosition.y = this.tileData.position.y * 32;
 
         this.mesh.position.set(this.targetPosition.x, this.targetPosition.y, 1);
         this.mesh.scale.set(0,0,0);
+
+        this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        this.mesh.frustumCulled = false;
+
+        this.parent?.app.renderScene.add(this.mesh);
     }
 
     public override onDestroyed(): void {
@@ -187,6 +190,7 @@ export class TileSetRenderer extends Phoenix.Component {
                         transparent: true
                     });
                     mesh = new THREE.InstancedMesh(geo, material, 5000);
+                    mesh.frustumCulled = false;
                 } else { // Center
                     const material = new THREE.ShaderMaterial({
                         glslVersion: THREE.GLSL3,
@@ -198,6 +202,7 @@ export class TileSetRenderer extends Phoenix.Component {
                         transparent: true
                     });
                     mesh = new THREE.InstancedMesh(geo, material, 5000);
+                    mesh.frustumCulled = false;
                 }
 
                 meshRow.push(mesh);
@@ -417,6 +422,11 @@ export class DynamicTileRenderer extends Phoenix.Component {
         this.tileData = tileData;
     }
 
+    oldScale: Phoenix.Vector2 = new Phoenix.Vector2(0,0);
+    oldPosition: Phoenix.Vector2 = new Phoenix.Vector2(0,0);
+
+    targetPosition: Phoenix.Vector2 = new Phoenix.Vector2(0,0);
+
     public override onInitialized(): void {
 
         this.sprite = this.parent?.getComponent(Phoenix.Sprite);
@@ -425,7 +435,7 @@ export class DynamicTileRenderer extends Phoenix.Component {
 
         const loadedTileConfig = tileConfig.dynamicTiles[this.tileData.name] as DynamicTileSchema;
 
-        const geo = new THREE.PlaneGeometry(loadedTileConfig.scale.x, loadedTileConfig.scale.y);
+        const geo = new THREE.PlaneGeometry(loadedTileConfig.scale.x * 32, loadedTileConfig.scale.y * 32);
         const texture = this.sprite.texture;
         const material = new THREE.ShaderMaterial({
             glslVersion: THREE.GLSL3,
@@ -437,9 +447,10 @@ export class DynamicTileRenderer extends Phoenix.Component {
             transparent: true
         })
 
-        this.mesh = new THREE.Mesh(geo, material)
+        this.mesh = new THREE.Mesh(geo, material);
 
-        this.mesh.position.set(this.tileData.position.x * 32, this.tileData.position.y * 32)
+        this.mesh.position.set(this.tileData.position.x * 32, this.tileData.position.y * 32);
+        this.mesh.scale.set(0,0,1);
 
         this.parent?.app.renderScene.add(this.mesh);
     }
@@ -449,5 +460,25 @@ export class DynamicTileRenderer extends Phoenix.Component {
 
         this.mesh?.geometry.dispose();
         (this.mesh?.material as THREE.ShaderMaterial).dispose();
+    }
+
+    public override onUpdate(): void {
+        this.oldPosition.x = this.tileData.position.x;
+        this.oldPosition.y = this.tileData.position.y;
+
+        this.targetPosition.x = this.tileData.position.x * 32;
+        this.targetPosition.y = this.tileData.position.y * 32;
+
+        this.mesh!.position.add({
+            x: (this.targetPosition.x - this.mesh!.position.x) / 6,
+            y: (this.targetPosition.y - this.mesh!.position.y) / 6, 
+            z: 0
+        })
+
+        this.mesh?.scale.add({
+            x: (1 - this.mesh!.scale.x) / 2,
+            y: (1 - this.mesh!.scale.y) / 2,
+            z: 0
+        })
     }
 }
