@@ -8,9 +8,9 @@ import { gsap } from "gsap";
 import sceneTransitionShader from "./global/shader/sceneTransition.glsl";
 
 const app: Phoenix.App = new Phoenix.App({
-    renderScale: 1/4,
+    renderScale: 1,
     clearColor: 0x4aeddc,
-    zoom: 1/2,
+    zoom: 1/4,
     shaderOverride: {
         vertexShader: Phoenix.DefaultVertexShader,
         fragmentShader: sceneTransitionShader,
@@ -50,7 +50,7 @@ app.postSceneLoadCallback = () => {
             duration: 1,
             ease: "power2.out"
         });
-    }, 450)
+    }, 1000)
 }
 
 app.plWorld.setGravity(pl.Vec2(0, -16))

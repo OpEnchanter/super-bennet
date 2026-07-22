@@ -122,6 +122,9 @@ class UpdatableSprite extends Phoenix.Sprite {
 
 export class Scene extends Phoenix.Scene {
     public override onLoad(app: Phoenix.App): void {
+        app.args.zoom = 1/2;
+        app.resize();
+
         // Object map
         const objectMap: Map<string, EditorLoadableObject> = new Map();
         const objects: Array<EditorLoadableObject> = [];

@@ -213,6 +213,9 @@ class CameraController extends Phoenix.Component {
 
 export class Scene extends Phoenix.Scene {
     override onLoad(app: Phoenix.App): void {
+        app.args.zoom = 1/4;
+        app.resize();
+
         const animFrames = {
             "standing": ["assets/bennet/standing.png"],
             "running": ["assets/bennet/animation/run/1.png", "assets/bennet/animation/run/2.png"],
