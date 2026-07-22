@@ -254,6 +254,6 @@ export class Scene extends Phoenix.Scene {
         app.addObject(camera);
 
         const loader: LevelLoader = new LevelLoader(app);
-        loader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-6,"y":-1},"scale":{"x":13,"y":4},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":2,"y":2},"scale":{"x":5,"y":5},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":3},"scale":{"x":3,"y":1},"sprite":"stone_brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":-6,"y":3},"scale":{"x":1,"y":1},"sprite":"stone_brick","hasCollision":true}}]}')
+        loader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-3,"y":-1},"scale":{"x":7,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":3,"y":1},"scale":{"x":5,"y":5},"sprite":"grass_bricks","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":6,"y":4},"name":"phys_cube","options":{}}}]}')
     }
 }

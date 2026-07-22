@@ -5,6 +5,7 @@
     "": {
       "name": "super-bennet",
       "dependencies": {
+        "gsap": "^3.15.0",
         "phoenix": "github:openchanter/phoenix",
         "planck": "^1.5.0",
         "three": "^0.185.1",
@@ -91,6 +92,8 @@
 
     "fsevents": ["fsevents@2.3.3", "", { "os": "darwin" }, "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="],
 
+    "gsap": ["gsap@3.15.0", "", {}, "sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A=="],
+
     "lightningcss": ["lightningcss@1.32.0", "", { "dependencies": { "detect-libc": "^2.0.3" }, "optionalDependencies": { "lightningcss-android-arm64": "1.32.0", "lightningcss-darwin-arm64": "1.32.0", "lightningcss-darwin-x64": "1.32.0", "lightningcss-freebsd-x64": "1.32.0", "lightningcss-linux-arm-gnueabihf": "1.32.0", "lightningcss-linux-arm64-gnu": "1.32.0", "lightningcss-linux-arm64-musl": "1.32.0", "lightningcss-linux-x64-gnu": "1.32.0", "lightningcss-linux-x64-musl": "1.32.0", "lightningcss-win32-arm64-msvc": "1.32.0", "lightningcss-win32-x64-msvc": "1.32.0" } }, "sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ=="],
 
     "lightningcss-android-arm64": ["lightningcss-android-arm64@1.32.0", "", { "os": "android", "cpu": "arm64" }, "sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg=="],
@@ -119,7 +122,7 @@
 
     "nanoid": ["nanoid@3.3.15", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA=="],
 
-    "phoenix": ["phoenix@github:openchanter/phoenix#bb92115", { "dependencies": { "chalk": "^5.6.2", "planck": "^1.5.0", "three": "^0.184.0", "vite": "^8.0.16" }, "peerDependencies": { "typescript": "^5" } }, "OpEnchanter-phoenix-bb92115", "sha512-CptESPKC1/huAagKfgYEV79kFKieHnernceKrYZTY+0ARo3KckY8oJ+d9bLeGRV+YQ8A0xQ1+CfQ+VBN6V6oEA=="],
+    "phoenix": ["phoenix@github:openchanter/phoenix#024cfcc", { "dependencies": { "chalk": "^5.6.2", "planck": "^1.5.0", "three": "^0.184.0", "vite": "^8.0.16" }, "peerDependencies": { "typescript": "^5" } }, "OpEnchanter-phoenix-024cfcc", "sha512-Rinwxu7kDz2AGn4WBogjkzLCpOJaI6QjS/yinFjJm3C3G5FFqLMDMWUwLrhjE2ECprv8fN6l+X1Q5oL5Y+rkQg=="],
 
     "picocolors": ["picocolors@1.1.1", "", {}, "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="],
 
