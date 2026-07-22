@@ -50,7 +50,7 @@ app.postSceneLoadCallback = () => {
             duration: 1,
             ease: "power2.out"
         });
-    }, 1000)
+    }, 250)
 }
 
 app.plWorld.setGravity(pl.Vec2(0, -16))
@@ -63,5 +63,5 @@ app.loadScene("title")
 
 setTimeout(()=>{
     isFirstScene = false;
-    app.sceneLoadTimeout = 550;
+    app.sceneLoadTimeout = 750;
 }, 15)

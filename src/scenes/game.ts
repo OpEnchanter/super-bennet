@@ -213,7 +213,7 @@ class CameraController extends Phoenix.Component {
 
 export class Scene extends Phoenix.Scene {
     override onLoad(app: Phoenix.App): void {
-        app.args.zoom = 1/4;
+        app.args.zoom = 1/3;
         app.resize();
 
         const animFrames = {
