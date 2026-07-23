@@ -470,6 +470,15 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
     public override onLateUpdate(): void {
         if (!this.transform) return;
+
+        if (this.parent?.app.getKey("Backspace") && this.selectedObject) {
+            (this.selectedObject.gameObject as Phoenix.GameObject).onDestroyed();
+            this.objects = this.objects.filter(object => object !== this.selectedObject);
+            this.selectedObject = undefined;
+            this.updateObjectMap();
+            this.updateSelectedObject();
+        }
+
         const mouseDown = this.app.getMouseDown();
         if (mouseDown && !this.mouseDownOld && this.t !== 0 && !muteTilePlaceEvents) {
             const mp = this.app.getMousePos();
@@ -495,45 +504,13 @@ export class SceneManipulationHandler extends Phoenix.Component {
                 tileUpdateTimeout = 10;
 
                 // Update selectedObject on scaling handles
-                this.objectScaleXHandle
-                    ?.getComponent(HorizontalRescaleHandle)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.objectScaleYHandle
-                    ?.getComponent(VerticalRescaleHandle)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.selectedObjectOverlay
-                    ?.getComponent(SelectedObjectOverlay)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.selectedObjectOverlay
-                    ?.getComponent(ObjectMoveHandler)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.objectOptions.setSelectedObject(this.selectedObject);
+                this.updateSelectedObject();
 
             } else if (this.selectedObject !== undefined && tilePlaceTimeout < 0) {
                 this.selectedObject = undefined;
 
                 // Update selectedObject on scaling handles
-                this.objectScaleXHandle
-                    ?.getComponent(HorizontalRescaleHandle)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.objectScaleYHandle
-                    ?.getComponent(VerticalRescaleHandle)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.selectedObjectOverlay
-                    ?.getComponent(SelectedObjectOverlay)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.selectedObjectOverlay
-                    ?.getComponent(ObjectMoveHandler)
-                    ?.setSelectedObject(this.selectedObject);
-
-                this.objectOptions.setSelectedObject(this.selectedObject);
+                this.updateSelectedObject();
 
             } else if (tilePlaceTimeout < 0) {
                 let objectData: Object = {};
@@ -651,6 +628,26 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
     setTilePlaceTimeout(time: number) {
         tilePlaceTimeout = time;
+    }
+
+    updateSelectedObject() {
+        this.objectScaleXHandle
+            ?.getComponent(HorizontalRescaleHandle)
+            ?.setSelectedObject(this.selectedObject);
+
+        this.objectScaleYHandle
+            ?.getComponent(VerticalRescaleHandle)
+            ?.setSelectedObject(this.selectedObject);
+
+        this.selectedObjectOverlay
+            ?.getComponent(SelectedObjectOverlay)
+            ?.setSelectedObject(this.selectedObject);
+
+        this.selectedObjectOverlay
+            ?.getComponent(ObjectMoveHandler)
+            ?.setSelectedObject(this.selectedObject);
+
+        this.objectOptions.setSelectedObject(this.selectedObject);
     }
 
     updateObjectMap() {
