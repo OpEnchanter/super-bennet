@@ -1,4 +1,5 @@
 import * as Phoenix from "phoenix";
+import { Switch } from "../lib/ui/Switch";
 
 class ButtonHoverAnimator extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -30,6 +31,9 @@ class ButtonHoverAnimator extends Phoenix.Component {
 
 export class Scene extends Phoenix.Scene {
     public override onLoad(app: Phoenix.App): void {
+        app.args.zoom = 1/4;
+        app.resize();
+
         const startButtonText = new Phoenix.TextSprite("Play", {
             backgroundColor: "#8cab9d",
             padding: 4,

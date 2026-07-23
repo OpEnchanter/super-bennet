@@ -1,12 +1,12 @@
 import * as Phoenix from "phoenix";
 import * as THREE from "three";
 import TileConfig from "../lib/tileset.json";
-import * as Loader from "../lib/scene/Loader";
 import type { EditorLoadableObject, SelectedPaintTileSchema } from "../lib/editor/Types";
 import { SceneManipulationHandler } from "../lib/editor/SceneManipulation";
 import { ButtonAnimator } from "../lib/editor/UIComponents";
 import type { TileConfigSchema } from "../lib/scene/Types";
 import { serializeEditorScene } from "../lib/editor/Serialization";
+import { OptionsUIManager } from "../lib/editor/ObjectOptions";
 
 class CameraController extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -134,10 +134,12 @@ export class Scene extends Phoenix.Scene {
             id: "brick"
         }
 
+        const optionsOpen = { value: true }
         let selectedObject: EditorLoadableObject | undefined;
+        const optionsUIManager = new OptionsUIManager(selectedObject, optionsOpen);
 
         // Camera
-        const sceneManipulationHandler = new SceneManipulationHandler(app, selectedPaintTile, selectedObject, objectMap, objects);
+        const sceneManipulationHandler = new SceneManipulationHandler(app, selectedPaintTile, selectedObject, objectMap, objects, optionsUIManager);
 
         app.addObject(app.createObject(
             new Phoenix.Transform(
@@ -211,61 +213,8 @@ export class Scene extends Phoenix.Scene {
         const menuSpacing = 24;
         let curUIY = window.innerHeight / 2 - menuPadding
 
-        const quitButtonText = new Phoenix.TextSprite("Exit", {
-            fontSize: 24,
-            padding: 8,
-            fontColor: "#afafaf",
-            backgroundColor: "#040404",
-            backgroundWidth: (500 - menuPadding * 2 - menuSpacing) / 2
-        })
-        curUIY -= quitButtonText.texture!.height / 2
-        menu.addChild(app.createObject(
-            new Phoenix.Transform(
-                new Phoenix.Vector2(
-                    -250 + quitButtonText.texture!.width / 2 + menuPadding,
-                    curUIY
-                ),
-                0,
-                new Phoenix.Vector2(quitButtonText.texture!.width, quitButtonText.texture!.height)
-            ),
-            quitButtonText,
-            new Phoenix.Button(() => {
-                app.loadScene("title");
-            }),
-            new Phoenix.UIRenderer(2)
-        ))
-
-        const saveButtonText = new Phoenix.TextSprite("Export", {
-            fontSize: 24,
-            padding: 8,
-            fontColor: "#afafaf",
-            backgroundColor: "#040404",
-            backgroundWidth: (500 - menuPadding * 2 - menuSpacing) / 2
-        })
-
-        menu.addChild(app.createObject(
-            new Phoenix.Transform(
-                new Phoenix.Vector2(
-                    -250 + saveButtonText.texture!.width * 1.5 + menuPadding * 2,
-                    curUIY
-                ),
-                0,
-                new Phoenix.Vector2(saveButtonText.texture!.width, saveButtonText.texture!.height)
-            ),
-            saveButtonText,
-            new Phoenix.Button(() => {
-                const data = serializeEditorScene(objects);
-                console.log(data);
-                navigator.clipboard.writeText(data);
-            }),
-            new Phoenix.UIRenderer(2)
-        ))
-
-        curUIY -= quitButtonText.texture!.height / 2
-
-
         const tilesText = new Phoenix.TextSprite("Tiles", {fontColor: "#afafaf", fontSize: 32})
-        curUIY -= tilesText.texture!.height / 2 + menuSpacing
+        curUIY -= tilesText.texture!.height / 2
         menu.addChild(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
@@ -424,5 +373,94 @@ export class Scene extends Phoenix.Scene {
         }
 
         app.addObject(menu);
+
+        // Add left context menu
+        const contextMenu = app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    -window.innerWidth / 2 + 32 + 16, 0
+                ),
+                0,
+                new Phoenix.Vector2(64, 256)
+            ),
+            new Phoenix.CanvasSprite(canvas),
+            new Phoenix.Button(() => {
+                sceneManipulationHandler.setTilePlaceTimeout(10);
+            }),
+            new Phoenix.UIRenderer(1)
+        )
+
+        const exitButton = app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2( 0,64 ),
+                0,
+                new Phoenix.Vector2(48, 48)
+            ),
+            new Phoenix.Sprite("assets/icons/exit.png"),
+            new Phoenix.Button(() => {
+                app.loadScene("title");
+            }),
+            new ButtonAnimator(),
+            new Phoenix.UIRenderer(2)
+        )
+        contextMenu.addChild(exitButton);
+
+        const editButtonSprite = new UpdatableSprite("assets/icons/edit-enabled.png");
+        const editButton = app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2( 0,0 ),
+                0,
+                new Phoenix.Vector2(48, 48)
+            ),
+            editButtonSprite,
+            new Phoenix.Button(() => {
+                optionsOpen.value = !optionsOpen.value;
+                editButtonSprite.updateSprite(optionsOpen.value ? 
+                    "assets/icons/edit-enabled.png" : 
+                    "assets/icons/edit.png"
+                )
+            }),
+            new ButtonAnimator(),
+            new Phoenix.UIRenderer(2)
+        )
+        contextMenu.addChild(editButton);
+
+        const exportButton = app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2( 0,-64 ),
+                0,
+                new Phoenix.Vector2(48, 48)
+            ),
+            new Phoenix.Sprite("assets/icons/export.png"),
+            new Phoenix.Button(() => {
+                const data = serializeEditorScene(objects);
+                navigator.clipboard.writeText(data);
+            }),
+            new ButtonAnimator(),
+            new Phoenix.UIRenderer(2)
+        )
+        contextMenu.addChild(exportButton);
+
+        app.addObject(contextMenu);
+
+        // Object settings
+        const objectOptions = app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    -window.innerWidth / 2 + 192 + 16,
+                    -window.innerHeight / 2 + 128 + 16
+                ),
+                0,
+                new Phoenix.Vector2(384, 256)
+            ),
+            new Phoenix.CanvasSprite(canvas),
+            new Phoenix.Button(() => {
+                sceneManipulationHandler.setTilePlaceTimeout(10);
+            }),
+            optionsUIManager,
+            new Phoenix.UIRenderer(1)
+        )
+
+        app.addObject(objectOptions);
     }
 }

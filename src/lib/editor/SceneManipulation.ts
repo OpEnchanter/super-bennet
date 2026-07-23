@@ -9,6 +9,7 @@ import type { TileConfigSchema } from "../scene/Types";
 import * as THREE from "three";
 
 import outlineFragmentShader from "./shader/outlineFragment.glsl";
+import type { OptionsUIManager } from "./ObjectOptions";
 
 const tileConfig = TileConfig as TileConfigSchema;
 
@@ -370,6 +371,8 @@ export class SceneManipulationHandler extends Phoenix.Component {
     objectScaleYHandle: Phoenix.GameObject | undefined;
     selectedObjectOverlay: Phoenix.GameObject | undefined;
 
+    objectOptions: OptionsUIManager;
+
     t: number = 0;
 
     constructor(
@@ -377,7 +380,8 @@ export class SceneManipulationHandler extends Phoenix.Component {
         selectedPaintTile: SelectedPaintTileSchema,  
         selectedObject: EditorLoadableObject | undefined, 
         objectMap: Map<string, EditorLoadableObject>,
-        objects: Array<EditorLoadableObject>
+        objects: Array<EditorLoadableObject>,
+        objectOptions: OptionsUIManager
     ){
         super();
         this.app = app;
@@ -385,6 +389,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
         this.objectMap = objectMap;
         this.selectedObject = selectedObject;
         this.objects = objects;
+        this.objectOptions = objectOptions;
     }
 
     public override onInitialized(): void {
@@ -506,7 +511,9 @@ export class SceneManipulationHandler extends Phoenix.Component {
                     ?.getComponent(ObjectMoveHandler)
                     ?.setSelectedObject(this.selectedObject);
 
-            } else if (this.selectedObject !== undefined) {
+                this.objectOptions.setSelectedObject(this.selectedObject);
+
+            } else if (this.selectedObject !== undefined && tilePlaceTimeout < 0) {
                 this.selectedObject = undefined;
 
                 // Update selectedObject on scaling handles
@@ -525,6 +532,9 @@ export class SceneManipulationHandler extends Phoenix.Component {
                 this.selectedObjectOverlay
                     ?.getComponent(ObjectMoveHandler)
                     ?.setSelectedObject(this.selectedObject);
+
+                this.objectOptions.setSelectedObject(this.selectedObject);
+
             } else if (tilePlaceTimeout < 0) {
                 let objectData: Object = {};
                 let gameObject: Phoenix.GameObject | undefined = undefined;
