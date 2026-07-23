@@ -11,7 +11,7 @@ import type {
 } from "./Types"
 
 const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = {
-    "phys_cube": (app, position, options) => {
+    "flower_blue": (app, position, options) => {
         return (app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
@@ -23,10 +23,40 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
                     32, 32
                 )
             ),
-            new Phoenix.Sprite("assets/tiles/editor/null.png"),
-            new Phoenix.Renderer(0),
-            new Phoenix.BoxCollider(new Phoenix.Vector2(32, 32)),
-            new Phoenix.Rigidbody(40, 1, false, false),
+            new Phoenix.Sprite("assets/tiles/props/flower-blue.png"),
+            new Phoenix.Renderer(0)
+        ))
+    },
+    "flower_red": (app, position, options) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(
+                    32, 32
+                )
+            ),
+            new Phoenix.Sprite("assets/tiles/props/flower-red.png"),
+            new Phoenix.Renderer(0)
+        ))
+    },
+    "sign": (app, position, options) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(
+                    32, 32
+                )
+            ),
+            new Phoenix.Sprite("assets/tiles/props/sign.png"),
+            new Phoenix.Renderer(0)
         ))
     }
 }
@@ -291,11 +321,9 @@ export class LevelLoader {
                     }
                 }
             } else if (object.type === "dynamic") {
-                console.log("loading dynamic object")
                 const tileData = object.data as DynamicTileData;
                 const objectFunction = dynamicTileFunctionMap.get(tileData.name);
                 if (objectFunction) {
-                    console.log(objectFunction);
                     this.levelRootObject.addChild(objectFunction(
                         this.app, 
                         new Phoenix.Vector2(tileData.position.x, tileData.position.y), 

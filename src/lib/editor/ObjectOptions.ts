@@ -58,16 +58,52 @@ export class OptionsUIManager extends Phoenix.Component {
 
         let uiRowY = 128 - ( 12 + 18 )
 
+        this.parent.addChild(this.parent.app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    -192 + 16 + 24,
+                    uiRowY
+                ),
+                0,
+                new Phoenix.Vector2(
+                    42, 42
+                )
+            ),
+            new Phoenix.Sprite("assets/icons/edit.png"),
+            new Phoenix.UIRenderer(2)
+        ))
+
+        const titleText = new Phoenix.TextSprite("Options", {
+            fontSize: 24, fontColor: "white", backgroundHeight: 30
+        })
+        this.parent.addChild(this.parent.app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    -192 + titleText.texture!.width / 2 + 24 + 32 + 12,
+                    uiRowY + 2
+                ),
+                0,
+                new Phoenix.Vector2(
+                    titleText.texture!.width,
+                    titleText.texture!.height
+                )
+            ),
+            titleText,
+            new Phoenix.UIRenderer(2)
+        ))
+
+        uiRowY -= titleText.texture!.height + 12
+
         if (this.selectedObject.type !== "dynamic") {
 
             const collisionText = new Phoenix.TextSprite("Collision Enabled", {
-                fontSize: 24, fontColor: "white"
+                fontSize: 16, fontColor: "white"
             })
             this.parent.addChild(this.parent.app.createObject(
                 new Phoenix.Transform(
                     new Phoenix.Vector2(
                         -192 + collisionText.texture!.width / 2 + 24,
-                        uiRowY + 4
+                        uiRowY + 2
                     ),
                     0,
                     new Phoenix.Vector2(

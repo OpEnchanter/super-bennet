@@ -23,8 +23,18 @@
         ]
     },
     "dynamicTiles": {
-        "phys_cube": {
-            "sprite": "assets/tiles/editor/null.png",
+        "flower_blue": {
+            "sprite": "assets/tiles/props/flower-blue.png",
+            "scale": {"x": 1, "y": 1},
+            "options": {}
+        },
+        "flower_red": {
+            "sprite": "assets/tiles/props/flower-red.png",
+            "scale": {"x": 1, "y": 1},
+            "options": {}
+        },
+        "sign": {
+            "sprite": "assets/tiles/props/sign.png",
             "scale": {"x": 1, "y": 1},
             "options": {}
         }

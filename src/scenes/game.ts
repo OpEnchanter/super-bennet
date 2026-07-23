@@ -200,20 +200,20 @@ class CameraController extends Phoenix.Component {
     public override onUpdate(): void {
         if (!this.transform || !this.targetTransform || !this.targetRigidbody) return;
 
-        const targetX = this.targetTransform.globalPosition.x + this.targetRigidbody.body!.getLinearVelocity().x * 2;
-        const targetY = this.targetTransform.globalPosition.y + this.targetRigidbody.body!.getLinearVelocity().y * 2;
+        const targetX = this.targetTransform.globalPosition.x;
+        const targetY = this.targetTransform.globalPosition.y;
         
         this.transform.position.x += 
-            (targetX - this.transform.globalPosition.x) / 8
+            (targetX - this.transform.position.x) / 8
 
         this.transform.position.y += 
-            (targetY - this.transform.globalPosition.y) / 8
+            (targetY - this.transform.position.y) / 8
     }
 }
 
 export class Scene extends Phoenix.Scene {
     override onLoad(app: Phoenix.App): void {
-        app.args.zoom = 1/3;
+        app.args.zoom = 1/4;
         app.resize();
 
         const animFrames = {
@@ -232,7 +232,7 @@ export class Scene extends Phoenix.Scene {
                 new Phoenix.Vector2(24, 32)
             ),
             
-            new Phoenix.Renderer(0),
+            new Phoenix.Renderer(4),
 
             new Phoenix.BoxCollider(
                 new Phoenix.Vector2(24, 32)
@@ -257,6 +257,6 @@ export class Scene extends Phoenix.Scene {
         app.addObject(camera);
 
         const loader: LevelLoader = new LevelLoader(app);
-        loader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-3,"y":-1},"scale":{"x":7,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":3,"y":1},"scale":{"x":5,"y":5},"sprite":"grass_bricks","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":6,"y":4},"name":"phys_cube","options":{}}}]}')
+        loader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-3,"y":-1},"scale":{"x":7,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-1},"scale":{"x":3,"y":1},"sprite":"brick_dark_half","hasCollision":false}},{"type":"tile","data":{"position":{"x":4,"y":-2},"scale":{"x":3,"y":2},"sprite":"brick_dark","hasCollision":false}},{"type":"dynamic","data":{"position":{"x":3,"y":0},"name":"flower_red","options":{}}},{"type":"dynamic","data":{"position":{"x":-2,"y":0},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":1,"y":7},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":1,"y":0},"name":"flower_blue","options":{}}},{"type":"tileset","data":{"position":{"x":-7,"y":3},"scale":{"x":4,"y":7},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":-7,"y":7},"scale":{"x":3,"y":11},"sprite":"grass_bricks","hasCollision":true}}]}')
     }
 }
