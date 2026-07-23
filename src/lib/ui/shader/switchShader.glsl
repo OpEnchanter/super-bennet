@@ -17,8 +17,6 @@ void main() {
 
     vec2 texSize = vec2(textureSize(uTex, 0));
 
-    p1 = linearToSRGB(p1);
-
     if (val) {
         p1 = vec4(0.0,0.78,0.3,1.0);
     } else {

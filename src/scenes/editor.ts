@@ -166,7 +166,7 @@ export class Scene extends Phoenix.Scene {
 
             new SelectedPaintTileIndicator(),
 
-            new Phoenix.UIRenderer(3)
+            new Phoenix.UIRenderer(7)
         ))
 
         // Start position flag

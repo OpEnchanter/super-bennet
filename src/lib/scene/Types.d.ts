@@ -30,8 +30,12 @@ export type DynamicTileData = {
         y: number
     },
     name: string,
-    options: Object
+    options: Map<string, string>
 }
+
+export type DynamicTileOptions = Map<string, {
+    type: string
+}>
 
 export type LoadableObject = {
     type: string,
@@ -41,6 +45,14 @@ export type LoadableObject = {
 export type ObjectBounds = {
     position: {x:number, y:number},
     scale: {x:number, y:number}
+}
+
+type TileSetSchema = string[][]
+
+export type DynamicTileSchema = {
+    sprite: string,
+    scale: {x:number, y:number},
+    options: Object
 }
 
 export type TileConfigSchema = {

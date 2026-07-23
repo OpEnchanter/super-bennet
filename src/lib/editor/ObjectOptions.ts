@@ -1,7 +1,9 @@
 import * as Phoenix from "phoenix";
 import type { EditorLoadableObject } from "./Types";
 import { Switch } from "../ui/Switch";
-import type { TileData } from "../scene/Types";
+import type { DynamicTileData, DynamicTileOptions, TileConfigSchema, TileData } from "../scene/Types";
+import { Dropdown } from "../ui/Dropdown";
+import TileConfig from "../tileset.json";
 
 export class OptionsUIManager extends Phoenix.Component {
     selectedObject: EditorLoadableObject | undefined;
@@ -131,6 +133,49 @@ export class OptionsUIManager extends Phoenix.Component {
                     (this.selectedObject?.data as TileData).hasCollision = active;
                 })
             ))
+        } else {
+            const data = (this.selectedObject.data as DynamicTileData)
+            const options = (((TileConfig as TileConfigSchema).dynamicTiles)[data.name]?.options as DynamicTileOptions);
+            for (const [name, settings] of Object.entries(options)) {
+
+                const nameText = new Phoenix.TextSprite(name, {
+                    fontSize: 16, fontColor: "white"
+                })
+                this.parent.addChild(this.parent.app.createObject(
+                    new Phoenix.Transform(
+                        new Phoenix.Vector2(
+                            -192 + nameText.texture!.width / 2 + 24,
+                            uiRowY + 2
+                        ),
+                        0,
+                        new Phoenix.Vector2(
+                            nameText.texture!.width,
+                            nameText.texture!.height
+                        )
+                    ),
+                    nameText,
+                    new Phoenix.UIRenderer(2)
+                ))
+
+                if (settings.type = "dynamicsDropdown") {
+                    this.parent.addChild(this.parent.app.createObject(
+                        new Phoenix.Transform(
+                            new Phoenix.Vector2(
+                                192 - 64 - 24,
+                                uiRowY
+                            ),
+                            0,
+                            new Phoenix.Vector2(
+                                128,
+                                32
+                            )
+                        ),
+                        new Dropdown((this.selectedObject.data as DynamicTileData).options.get(name)!, Object.keys(TileConfig.dynamicTiles), (value: string) => {
+                            (this.selectedObject!.data as DynamicTileData).options.set(name, value)
+                        })
+                    ))
+                }
+            }
         }
     }
 }

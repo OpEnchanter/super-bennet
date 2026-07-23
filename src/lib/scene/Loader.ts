@@ -62,14 +62,6 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
 }
 const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
 
-type TileSetSchema = string[][]
-
-export type DynamicTileSchema = {
-    sprite: string,
-    scale: {x:number, y:number},
-    options: Object
-}
-
 type JSONWorld = {
     objects: Array<LoadableObject>
 }

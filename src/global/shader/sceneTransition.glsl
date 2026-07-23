@@ -19,7 +19,7 @@ void main() {
 
     p1 = linearToSRGB(p1);
 
-    float yCoord = round(fragTexCoord.y / 0.2) * 0.2;
+    float yCoord = round(fragTexCoord.y / 0.05) * 0.05;
     float startSin = fragTexCoord.x + sin((-time / 40.0 + yCoord) * 5.0) / 25.0;
     float endSin = fragTexCoord.x + sin((time / 40.0 + yCoord) * 5.0) / 25.0;
 

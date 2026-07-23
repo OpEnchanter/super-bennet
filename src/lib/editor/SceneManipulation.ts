@@ -2,7 +2,7 @@ import * as Phoenix from "phoenix"
 import type { EditorLoadableObject, SelectedPaintTileSchema } from "./Types";
 import * as Loader from "../scene/Loader"
 import TileConfig from "../tileset.json";
-import type { TileData, TileSetData, DynamicTileData } from "../scene/Types";
+import type { TileData, TileSetData, DynamicTileData, DynamicTileSchema } from "../scene/Types";
 import { DynamicTileRenderer, TileRenderer, TileSetRenderer } from "./Rendering";
 import type { TileConfigSchema } from "../scene/Types";
 
@@ -40,7 +40,7 @@ function getTileData(object: EditorLoadableObject) {
             }
             break;
         case ("dynamic"):
-            const selectedDynamicObjectData: Loader.DynamicTileSchema = 
+            const selectedDynamicObjectData: DynamicTileSchema = 
                 tileConfig.dynamicTiles[(object.data as DynamicTileData).name]!;
 
             selectedTileData = {
@@ -579,7 +579,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
                                 y: mpWorldSpace.y
                             },
                             name: this.selectedPaintTile.id,
-                            options: {}
+                            options: new Map<string, string>
                         } as DynamicTileData;
 
                         gameObject = this.app.createObject(
@@ -592,7 +592,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
                                 new Phoenix.Vector2(32, 32)
                             ),
 
-                            new Phoenix.Sprite(tileConfig.dynamicTiles[(objectData as DynamicTileData).name].sprite),
+                            new Phoenix.Sprite(tileConfig.dynamicTiles[(objectData as DynamicTileData).name]!.sprite),
                             new DynamicTileRenderer(objectData as DynamicTileData)
                         );
                         break;

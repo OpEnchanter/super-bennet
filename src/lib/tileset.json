@@ -37,6 +37,15 @@
             "sprite": "assets/tiles/props/sign.png",
             "scale": {"x": 1, "y": 1},
             "options": {}
+        },
+        "lucky_block": {
+            "sprite": "assets/tiles/lucky.png",
+            "scale": {"x": 1, "y": 1},
+            "options": {
+                "contents": {
+                    "type": "dynamicsDropdown"
+                }
+            }
         }
     }
 }
