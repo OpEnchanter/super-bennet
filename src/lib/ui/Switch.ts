@@ -30,7 +30,6 @@ export class Switch extends Phoenix.Component {
         this.transform = this.parent?.getComponent(Phoenix.Transform);
         if (!this.transform) return;
 
-
         // Create background
         const bgCanvas = document.createElement("canvas");
         bgCanvas.width = this.transform.scale.x;
@@ -73,16 +72,17 @@ export class Switch extends Phoenix.Component {
         swCanvas.height = handleSize;
 
         ctx = swCanvas.getContext('2d');
-        ctx!.fillStyle = "#afafbf";
+        ctx!.fillStyle = "#5a6988";
         ctx?.fillRect(0,0,handleSize,handleSize);
 
-        ctx!.strokeStyle = "#6c6c7c";
-        ctx!.lineWidth = handleSize / 3;
+        ctx!.strokeStyle = "#3a4466";
+        ctx!.lineWidth = 12;
         ctx?.strokeRect(0, 0, handleSize, handleSize);
 
         const handleTexture = new THREE.CanvasTexture(swCanvas)
         handleTexture.minFilter = THREE.NearestFilter;
         handleTexture.magFilter = THREE.NearestFilter;
+        handleTexture.colorSpace = THREE.SRGBColorSpace;
 
         const handleMaterial = new THREE.ShaderMaterial({
             glslVersion: THREE.GLSL3,

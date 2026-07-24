@@ -18,9 +18,9 @@ void main() {
     vec2 texSize = vec2(textureSize(uTex, 0));
 
     if (val) {
-        p1 = vec4(0.0,0.78,0.3,1.0);
+        p1 = vec4(0.24,0.54,0.28,1.0);
     } else {
-        p1 = vec4(0.78,0.1,0.0,1.0);
+        p1 = vec4(0.894,0.231,0.267,1.0);
     }
 
     if (

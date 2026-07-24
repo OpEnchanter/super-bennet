@@ -20,6 +20,22 @@
             ["assets/tiles/brick/grass/brick-grass-top-left.png", "assets/tiles/brick/grass/brick-grass.png", "assets/tiles/brick/grass/brick-grass-top-right.png"],
             ["assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png"],
             ["assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png", "assets/tiles/brick/brick.png"]
+        ],
+        "grass_stone_bricks": [
+            ["assets/tiles/stone-bricks/grass/stone-bricks-grass-top-left.png", "assets/tiles/stone-bricks/grass/stone-bricks-grass.png", "assets/tiles/stone-bricks/grass/stone-bricks-grass-top-right.png"],
+            ["assets/tiles/stone-bricks/stone-bricks.png", "assets/tiles/stone-bricks/stone-bricks.png", "assets/tiles/stone-bricks/stone-bricks.png"],
+            ["assets/tiles/stone-bricks/stone-bricks.png", "assets/tiles/stone-bricks/stone-bricks.png", "assets/tiles/stone-bricks/stone-bricks.png"]
+        ],
+
+        "brick_pit": [
+            ["assets/tiles/brick/brick-dark-half.png", "assets/tiles/brick/brick-dark-half.png", "assets/tiles/brick/brick-dark-half.png"],
+            ["assets/tiles/brick/brick-dark.png", "assets/tiles/brick/brick-dark.png", "assets/tiles/brick/brick-dark.png"],
+            ["assets/tiles/brick/brick-dark.png", "assets/tiles/brick/brick-dark.png", "assets/tiles/brick/brick-dark.png"]
+        ],
+        "stone_brick_pit": [
+            ["assets/tiles/stone-bricks/stone-bricks-dark-half.png", "assets/tiles/stone-bricks/stone-bricks-dark-half.png", "assets/tiles/stone-bricks/stone-bricks-dark-half.png"],
+            ["assets/tiles/stone-bricks/stone-bricks-dark.png", "assets/tiles/stone-bricks/stone-bricks-dark.png", "assets/tiles/stone-bricks/stone-bricks-dark.png"],
+            ["assets/tiles/stone-bricks/stone-bricks-dark.png", "assets/tiles/stone-bricks/stone-bricks-dark.png", "assets/tiles/stone-bricks/stone-bricks-dark.png"]
         ]
     },
     "dynamicTiles": {
