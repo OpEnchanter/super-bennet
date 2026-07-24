@@ -112,8 +112,8 @@ class HorizontalRescaleHandle extends Phoenix.Component {
             }
 
             if (this.isDragging) {
-                (this.selectedObject.data as TileData).scale.x += 
-                    Math.round((wsMousePos.x - this.transform!.position.x) / 32)
+                (this.selectedObject.data as TileData).scale.x = 
+                    Math.round((wsMousePos.x / 32) - (this.selectedObject.data as TileData).position.x)
 
                 if ((this.selectedObject.data as TileData).scale.x < 1) {
                     (this.selectedObject.data as TileData).scale.x = 1;
@@ -188,8 +188,8 @@ class VerticalRescaleHandle extends Phoenix.Component {
             }
 
             if (this.isDragging) {
-                (this.selectedObject.data as TileData).scale.y += 
-                    Math.round((this.transform!.position.y - wsMousePos.y) / 32)
+                (this.selectedObject.data as TileData).scale.y = 
+                    (this.selectedObject.data as TileData).position.y - Math.round((wsMousePos.y / 32))
                 if ((this.selectedObject.data as TileData).scale.y < 1) {
                     (this.selectedObject.data as TileData).scale.y = 1;
                 }

@@ -78,7 +78,7 @@ export class Dropdown extends Phoenix.Component {
         const dropdownCanvas = document.createElement("canvas");
         dropdownCanvas.width = 1; dropdownCanvas.height = 1;
         const dropdownCtx = dropdownCanvas.getContext("2d")!;
-        dropdownCtx.fillStyle = "#262b44"
+        dropdownCtx.fillStyle = "#3a4466"
         dropdownCtx.fillRect(0, 0, 1, 1);
 
         const dropdownTex = new THREE.CanvasTexture(dropdownCanvas);
@@ -209,13 +209,13 @@ export class Dropdown extends Phoenix.Component {
             canvas.width = this.transform.scale.x; canvas.height = optionHeight;
 
             const ctx = canvas.getContext("2d");
-            ctx!.fillStyle = `#3a4466`
-            ctx?.fillRect(0, 0, this.transform.scale.x, this.transform.scale.y);
+            ctx!.fillStyle = `#5a6988`
+            ctx?.fillRect(6, 6, this.transform.scale.x - 12, this.transform.scale.y);
 
             ctx!.textAlign = "left";
             ctx!.fillStyle = "white";
             ctx!.font = `18px sans-serif`
-            ctx?.fillText(this.options[i]!, 8, optionHeight - 6);
+            ctx?.fillText(this.options[i]!, 12, optionHeight - 6);
 
             const tex = new THREE.CanvasTexture(canvas);
             tex.colorSpace = THREE.SRGBColorSpace;
@@ -246,7 +246,7 @@ export class Dropdown extends Phoenix.Component {
 
             mesh2.visible = false;
 
-            meshY -= optionHeight + 4;
+            meshY -= optionHeight + 12;
         }
     }
 
@@ -266,7 +266,7 @@ export class Dropdown extends Phoenix.Component {
         ctx!.textAlign = "left";
         ctx!.fillStyle = "white";
         ctx!.font = `18px times-new-roman`
-        ctx?.fillText(this.value, 8, optionHeight - 6);
+        ctx?.fillText(this.value, 12, optionHeight - 10);
 
         return bgCanvas;
     }
