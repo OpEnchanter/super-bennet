@@ -10,7 +10,7 @@ import type {
     TileConfigSchema
 } from "./Types"
 
-const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = {
+const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = {
     "flower_blue": (app, position, options) => {
         return (app.createObject(
             new Phoenix.Transform(
@@ -60,7 +60,7 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
         ))
     }
 }
-const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Object)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
+const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
 
 type JSONWorld = {
     objects: Array<LoadableObject>
@@ -68,31 +68,42 @@ type JSONWorld = {
 
 const tileConfig = TileConfig as TileConfigSchema;
 
-export class LevelLoader {
-    app: Phoenix.App;
-    levelRootObject: Phoenix.GameObject;
-    levelBody: pl.Body;
+export class LevelLoader extends Phoenix.Component {
+    app: Phoenix.App | undefined;
+    levelRootObject: Phoenix.GameObject | undefined;
+    levelBody: pl.Body | undefined;
 
-    constructor(app: Phoenix.App) {
-        this.app = app;
-        this.levelRootObject = app.createObject(
-            new Phoenix.Transform(
-                new Phoenix.Vector2(0, 0),
-                0,
-                new Phoenix.Vector2(0, 0)
-            )
-        )
-        this.app.addObject(this.levelRootObject);
+    globals: Record<string, any>;
 
-        this.levelBody = app.plWorld.createBody({
+    levels: string[] = [];
+    curLevel: number = 0;
+
+    constructor(globals: Record<string, any>) {
+        super();
+        this.globals = {levelManager: this, ...globals};
+    }
+
+    public override onInitialized(): void {
+        this.app! = this.parent!.app;
+
+        this.levelBody = this.app!.plWorld.createBody({
             type: "static",
             position: {x:0, y:0}
         })
+
+        this.loadFromString(this.levels[this.curLevel]!);
+    }
+
+    public override onDestroyed(): void {
+        this.unload();
+        this.app!.plWorld.destroyBody(this.levelBody!);
     }
 
     public unload() {
         // Destroy levelRoot also destroying all objects in the level
-        this.levelRootObject.onDestroyed();
+        for (const o of this.parent!.children) {
+            o.onDestroyed();
+        }
     }
 
     public loadFromString(jsonString: string) {
@@ -100,9 +111,28 @@ export class LevelLoader {
         this.loadFromJson(jsonObject);
     }
 
+    public addLevel(levelString: string) {
+        this.levels.push(levelString);
+    }
+
+    public nextLevel() {
+        this.curLevel++;
+        this.loadFromString(this.levels[this.curLevel]!);
+    }
+
     public loadFromJson(jsonObject: JSONWorld) {
         let tileLookupMap = new Map();
         let objectBounds: ObjectBounds[] = [];
+
+        this.unload();
+        this.parent = this.app!.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(0, 0),
+                0,
+                new Phoenix.Vector2(0, 0)
+            )
+        )
+        this.app!.addObject(this.parent);
 
         // Rendering object creation
         for (const object of jsonObject.objects) {
@@ -129,7 +159,7 @@ export class LevelLoader {
                     }
                 }
 
-                const tileObject = this.app.createObject(
+                const tileObject = this.app!.createObject(
                     new Phoenix.Transform(
                         new Phoenix.Vector2(tileData.position.x * 32, tileData.position.y * 32),
                         0,
@@ -139,7 +169,7 @@ export class LevelLoader {
                     new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                 );
 
-                this.levelRootObject.addChild(tileObject);
+                this.parent.addChild(tileObject);
             } else if (object.type === "tileset") {
                 const tileData = object.data as TileSetData;
                 let positions: Array<Phoenix.Vector2> = [];
@@ -159,7 +189,7 @@ export class LevelLoader {
                 ]
 
                 for (let i = 0; i < positions.length; i++) {
-                    const object = this.app.createObject(
+                    const object = this.app!.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(positions[i]!.x * 32, positions[i]!.y * 32),
                             0,
@@ -169,7 +199,7 @@ export class LevelLoader {
                         new Phoenix.Renderer(0)
                     )
 
-                    this.levelRootObject.addChild(object)
+                    this.parent.addChild(object)
                 }
 
                 // Edges
@@ -183,7 +213,7 @@ export class LevelLoader {
                         ));
                     
                     }
-                    const object = this.app.createObject(
+                    const object = this.app!.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(tileData.position.x * 32 + 32, tileData.position.y * 32),
                             0,
@@ -193,7 +223,7 @@ export class LevelLoader {
                         new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                     )
 
-                    this.levelRootObject.addChild(object);
+                    this.parent.addChild(object);
                 }
 
                 positions = [];
@@ -205,7 +235,7 @@ export class LevelLoader {
                         ));                        
                     }
 
-                    const object = this.app.createObject(
+                    const object = this.app!.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(
                                 tileData.position.x * 32 + 32, 
@@ -218,7 +248,7 @@ export class LevelLoader {
                         new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                     )
 
-                    this.levelRootObject.addChild(object);
+                    this.parent.addChild(object);
                 }
 
                 edgeLength = Math.max(0, tileData.scale.y - 2);
@@ -231,7 +261,7 @@ export class LevelLoader {
                         ));
                     }
 
-                    const object = this.app.createObject(
+                    const object = this.app!.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(tileData.position.x * 32, tileData.position.y * 32 - 32),
                             0,
@@ -241,7 +271,7 @@ export class LevelLoader {
                         new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                     )
 
-                    this.levelRootObject.addChild(object);
+                    this.parent.addChild(object);
                 }
 
                 positions = [];
@@ -253,7 +283,7 @@ export class LevelLoader {
                         ));
                     
                     }
-                    const object = this.app.createObject(
+                    const object = this.app!.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(
                                 tileData.position.x * 32 + (tileData.scale.x - 1) * 32, 
@@ -266,7 +296,7 @@ export class LevelLoader {
                         new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                     )
 
-                    this.levelRootObject.addChild(object);
+                    this.parent.addChild(object);
                 }
 
                 // Center
@@ -283,7 +313,7 @@ export class LevelLoader {
                         }
                     }
 
-                    const object = this.app.createObject(
+                    const object = this.app!.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(
                                 (tileData.position.x + 1) * 32, 
@@ -296,7 +326,7 @@ export class LevelLoader {
                         new Phoenix.InstancedRenderer(positions, new Phoenix.Vector2(32, 32))
                     )
 
-                    this.levelRootObject.addChild(object);
+                    this.parent.addChild(object);
                 }
 
                 if (tileData.hasCollision) {
@@ -316,10 +346,11 @@ export class LevelLoader {
                 const tileData = object.data as DynamicTileData;
                 const objectFunction = dynamicTileFunctionMap.get(tileData.name);
                 if (objectFunction) {
-                    this.levelRootObject.addChild(objectFunction(
-                        this.app, 
+                    this.parent.addChild(objectFunction(
+                        this.app!, 
                         new Phoenix.Vector2(tileData.position.x, tileData.position.y), 
-                        tileData.options
+                        tileData.options,
+                        this.globals
                     ));
                 }
             }
@@ -382,12 +413,12 @@ export class LevelLoader {
                 }
             )
 
-            this.levelBody.createFixture({shape: topEdge})
-            this.levelBody.createFixture({shape: bottomEdge})
-            this.levelBody.createFixture({shape: leftEdge})
-            this.levelBody.createFixture({shape: rightEdge})
+            this.levelBody!.createFixture({shape: topEdge})
+            this.levelBody!.createFixture({shape: bottomEdge})
+            this.levelBody!.createFixture({shape: leftEdge})
+            this.levelBody!.createFixture({shape: rightEdge})
 
-            this.levelBody.createFixture({shape:volume})
+            this.levelBody!.createFixture({shape:volume})
         }
     }
 }

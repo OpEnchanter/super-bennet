@@ -127,8 +127,24 @@ export class Scene extends Phoenix.Scene {
             new Phoenix.UIRenderer(0)
         ))
 
-        const levelLoader = new LevelLoader(app);
-        levelLoader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-2,"y":-1},"scale":{"x":5,"y":11},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":-1,"y":3},"scale":{"x":2,"y":4},"sprite":"brick_dark","hasCollision":true}},{"type":"tile","data":{"position":{"x":-1,"y":4},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":0,"y":4},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":3,"y":-2},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-7},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":-2},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":-4,"y":-5},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":-3},"scale":{"x":1,"y":9},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":-4,"y":-6},"scale":{"x":1,"y":6},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":3,"y":-3},"scale":{"x":1,"y":9},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-8},"scale":{"x":1,"y":4},"sprite":"brick","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":1,"y":0},"name":"flower_blue","options":{}}},{"type":"dynamic","data":{"position":{"x":3,"y":-1},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":-1,"y":5},"name":"flower_red","options":{}}}]}');
+        const levelLoader = new LevelLoader({});
+
+        app.addObject(app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    0,
+                    0
+                ),
+                0,
+                new Phoenix.Vector2(
+                    0,
+                    0
+                )
+            ),
+            levelLoader
+        ));
+
+        levelLoader.addLevel('{"objects":[{"type":"tileset","data":{"position":{"x":-2,"y":-1},"scale":{"x":5,"y":11},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":-1,"y":3},"scale":{"x":2,"y":4},"sprite":"brick_dark","hasCollision":true}},{"type":"tile","data":{"position":{"x":-1,"y":4},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":0,"y":4},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":3,"y":-2},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-7},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":-2},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":-4,"y":-5},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":-3},"scale":{"x":1,"y":9},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":-4,"y":-6},"scale":{"x":1,"y":6},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":3,"y":-3},"scale":{"x":1,"y":9},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-8},"scale":{"x":1,"y":4},"sprite":"brick","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":1,"y":0},"name":"flower_blue","options":{}}},{"type":"dynamic","data":{"position":{"x":3,"y":-1},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":-1,"y":5},"name":"flower_red","options":{}}}]}');
 
         app.addObject(app.createObject(
             new Phoenix.Transform(

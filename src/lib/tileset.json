@@ -62,6 +62,16 @@
                     "type": "dynamicsDropdown"
                 }
             }
+        },
+        "next_level": {
+            "sprite": "assets/tiles/editor/next-level-trigger.png",
+            "scale": {"x": 1, "y":1},
+            "options": {}
+        },
+        "show_text": {
+            "sprite": "assets/tiles/editor/text-trigger.png",
+            "scale": {"x": 1, "y":1},
+            "options": {}
         }
     }
 }

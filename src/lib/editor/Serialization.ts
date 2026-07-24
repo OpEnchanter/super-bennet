@@ -1,4 +1,4 @@
-import type { LoadableObject } from "../scene/Types";
+import type { DynamicTileData, LoadableObject } from "../scene/Types";
 import type { EditorLoadableObject } from "./Types";
 
 export function serializeEditorScene(scene: Array<EditorLoadableObject>) {
@@ -8,10 +8,16 @@ export function serializeEditorScene(scene: Array<EditorLoadableObject>) {
         objects: []
     };
     for (const obj of scene) {
-        out.objects.push({
-            type: obj.type,
-            data: obj.data
-        } as LoadableObject);
+        const sObj = {
+            type: structuredClone(obj.type),
+            data: structuredClone(obj.data)
+        } as LoadableObject;
+
+        if (obj.type === "dynamic") {
+            (sObj.data as {options: Object}).options = Object.fromEntries((obj.data as DynamicTileData).options);
+        }
+
+        out.objects.push(sObj);
     }
     return JSON.stringify(out);
 }

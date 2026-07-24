@@ -175,6 +175,8 @@ export class OptionsUIManager extends Phoenix.Component {
                         })
                     ))
                 }
+
+                uiRowY -= 48
             }
         }
     }

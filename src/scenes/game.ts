@@ -256,7 +256,14 @@ export class Scene extends Phoenix.Scene {
         app.addObject(player);
         app.addObject(camera);
 
-        const loader: LevelLoader = new LevelLoader(app);
-        loader.loadFromString('{"objects":[{"type":"tileset","data":{"position":{"x":-3,"y":-1},"scale":{"x":7,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-1},"scale":{"x":3,"y":1},"sprite":"brick_dark_half","hasCollision":false}},{"type":"tile","data":{"position":{"x":4,"y":-2},"scale":{"x":3,"y":2},"sprite":"brick_dark","hasCollision":false}},{"type":"dynamic","data":{"position":{"x":3,"y":0},"name":"flower_red","options":{}}},{"type":"dynamic","data":{"position":{"x":-2,"y":0},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":1,"y":7},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":1,"y":0},"name":"flower_blue","options":{}}},{"type":"tileset","data":{"position":{"x":-7,"y":3},"scale":{"x":4,"y":7},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":-7,"y":7},"scale":{"x":3,"y":11},"sprite":"grass_bricks","hasCollision":true}}]}')
+        const loader: LevelLoader = new LevelLoader({
+            player: player
+        });
+
+        app.addObject(app.createObject(
+            loader
+        ));
+
+        loader.addLevel('{"objects":[{"type":"tileset","data":{"position":{"x":-2,"y":-1},"scale":{"x":5,"y":11},"sprite":"grass_bricks","hasCollision":true}},{"type":"tile","data":{"position":{"x":-1,"y":3},"scale":{"x":2,"y":4},"sprite":"brick_dark","hasCollision":true}},{"type":"tile","data":{"position":{"x":-1,"y":4},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":0,"y":4},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":3,"y":-2},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-7},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_right","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":-2},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":-4,"y":-5},"scale":{"x":1,"y":1},"sprite":"brick_grass_top_left","hasCollision":true}},{"type":"tile","data":{"position":{"x":-3,"y":-3},"scale":{"x":1,"y":9},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":-4,"y":-6},"scale":{"x":1,"y":6},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":3,"y":-3},"scale":{"x":1,"y":9},"sprite":"brick","hasCollision":true}},{"type":"tile","data":{"position":{"x":4,"y":-8},"scale":{"x":1,"y":4},"sprite":"brick","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":1,"y":0},"name":"flower_blue","options":{}}},{"type":"dynamic","data":{"position":{"x":3,"y":-1},"name":"sign","options":{}}},{"type":"dynamic","data":{"position":{"x":-1,"y":5},"name":"flower_red","options":{}}}]}')
     }
 }
