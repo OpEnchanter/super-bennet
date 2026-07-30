@@ -8,10 +8,14 @@ import type {
     LoadableObject,
     ObjectBounds,
     TileConfigSchema
-} from "./Types"
+} from "./Types";
+import { UpdatableSprite } from "../GenericHelpers";
+import { NextLevelTrigger } from "./components/NextLevelTrigger";
+import { LuckyBlock } from "./components/LuckyBlock";
+import { Enemy } from "./components/Enemy";
 
 const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = {
-    "flower_blue": (app, position, options) => {
+    "flower_blue": (app, position, options, globals) => {
         return (app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
@@ -27,7 +31,7 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
             new Phoenix.Renderer(0)
         ))
     },
-    "flower_red": (app, position, options) => {
+    "flower_red": (app, position, options, globals) => {
         return (app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
@@ -43,7 +47,7 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
             new Phoenix.Renderer(0)
         ))
     },
-    "sign": (app, position, options) => {
+    "sign": (app, position, options, globals) => {
         return (app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
@@ -58,9 +62,86 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
             new Phoenix.Sprite("assets/tiles/props/sign.png"),
             new Phoenix.Renderer(0)
         ))
+    },
+    "lucky_block": (app, position, options, globals) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(
+                    32, 32
+                )
+            ),
+            new UpdatableSprite("assets/tiles/lucky.png"),
+            new Phoenix.BoxCollider(new Phoenix.Vector2(32, 32)),
+            new LuckyBlock(dynamicTileFunctions[options.get("contents")!]!(app, new Phoenix.Vector2(position.x, position.y + 1), options, globals)),
+            new Phoenix.Renderer(4)
+        ))
+    },
+    "next_level": (app, position, options, globals) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(
+                    0, 0
+                )
+            ),
+            new NextLevelTrigger(globals.player, globals.levelManager)
+        ))
+    },
+    "show_text": (app, position, options, globals) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(
+                    32, 32
+                )
+            ),
+            new Phoenix.Sprite("assets/tiles/props/sign.png"),
+            new Phoenix.Renderer(0)
+        ))
+    },
+    "enemy": (app, position, options, globals) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(
+                    position.x * 32,
+                    position.y * 32
+                ),
+                0,
+                new Phoenix.Vector2(32, 32)
+            ),
+            new Phoenix.AnimatedSprite({"walking": [
+                "assets/tiles/enemy/animation/walking/1.png",
+                "assets/tiles/enemy/animation/walking/2.png"
+            ], "dying": [
+                "assets/tiles/enemy/animation/death/1.png",
+                "assets/tiles/enemy/animation/death/2.png",
+                "assets/tiles/enemy/animation/death/3.png",
+                "assets/tiles/enemy/animation/death/4.png",
+                "assets/tiles/enemy/animation/death/5.png"
+            ], "dead": [
+                "assets/tiles/enemy/animation/death/5.png",
+            ]}),
+            new Phoenix.BoxCollider(new Phoenix.Vector2(32, 32)),
+            new Phoenix.Rigidbody(1, 1, false, true),
+            new Enemy(1, globals.player),
+            new Phoenix.Renderer(0)
+        ))
     }
 }
-const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
+export const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
 
 type JSONWorld = {
     objects: Array<LoadableObject>
@@ -85,12 +166,6 @@ export class LevelLoader extends Phoenix.Component {
 
     public override onInitialized(): void {
         this.app! = this.parent!.app;
-
-        this.levelBody = this.app!.plWorld.createBody({
-            type: "static",
-            position: {x:0, y:0}
-        })
-
         this.loadFromString(this.levels[this.curLevel]!);
     }
 
@@ -104,6 +179,8 @@ export class LevelLoader extends Phoenix.Component {
         for (const o of this.parent!.children) {
             o.onDestroyed();
         }
+        this.parent!.children = [];
+        if (this.levelBody) this.app!.plWorld.destroyBody(this.levelBody!);
     }
 
     public loadFromString(jsonString: string) {
@@ -117,6 +194,13 @@ export class LevelLoader extends Phoenix.Component {
 
     public nextLevel() {
         this.curLevel++;
+        this.curLevel = this.curLevel % this.levels.length;
+        console.log(this.curLevel);
+        this.loadFromString(this.levels[this.curLevel]!);
+    }
+
+    public gotoLevel(id: number) {
+        this.curLevel = id;
         this.loadFromString(this.levels[this.curLevel]!);
     }
 
@@ -125,14 +209,13 @@ export class LevelLoader extends Phoenix.Component {
         let objectBounds: ObjectBounds[] = [];
 
         this.unload();
-        this.parent = this.app!.createObject(
-            new Phoenix.Transform(
-                new Phoenix.Vector2(0, 0),
-                0,
-                new Phoenix.Vector2(0, 0)
-            )
-        )
-        this.app!.addObject(this.parent);
+
+        this.levelBody = this.app!.plWorld.createBody({
+            type: "static",
+            position: {x:0, y:0}
+        })
+
+        if (!this.parent) return;
 
         // Rendering object creation
         for (const object of jsonObject.objects) {
@@ -349,7 +432,7 @@ export class LevelLoader extends Phoenix.Component {
                     this.parent.addChild(objectFunction(
                         this.app!, 
                         new Phoenix.Vector2(tileData.position.x, tileData.position.y), 
-                        tileData.options,
+                        new Map(Object.entries(tileData.options)),
                         this.globals
                     ));
                 }

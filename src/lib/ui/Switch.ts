@@ -35,10 +35,10 @@ export class Switch extends Phoenix.Component {
         bgCanvas.width = this.transform.scale.x;
         bgCanvas.height = this.transform.scale.y;
 
-        let ctx = bgCanvas.getContext('2d');
+        const bgctx = bgCanvas.getContext('2d');
 
-        ctx!.fillStyle = "#2c2c2c";
-        ctx?.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+        bgctx!.fillStyle = "#2c2c2c";
+        bgctx?.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
         const backgroundTexture = new THREE.CanvasTexture(bgCanvas)
 
@@ -71,13 +71,13 @@ export class Switch extends Phoenix.Component {
         swCanvas.width = handleSize;
         swCanvas.height = handleSize;
 
-        ctx = swCanvas.getContext('2d');
-        ctx!.fillStyle = "#5a6988";
-        ctx?.fillRect(0,0,handleSize,handleSize);
+        const swctx = swCanvas.getContext('2d');
+        swctx!.fillStyle = "#5a6988";
+        swctx?.fillRect(0,0,handleSize,handleSize);
 
-        ctx!.strokeStyle = "#3a4466";
-        ctx!.lineWidth = 12;
-        ctx?.strokeRect(0, 0, handleSize, handleSize);
+        swctx!.strokeStyle = "#3a4466";
+        swctx!.lineWidth = 12;
+        swctx?.strokeRect(0, 0, handleSize, handleSize);
 
         const handleTexture = new THREE.CanvasTexture(swCanvas)
         handleTexture.minFilter = THREE.NearestFilter;

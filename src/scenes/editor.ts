@@ -7,6 +7,7 @@ import { ButtonAnimator } from "../lib/editor/UIComponents";
 import type { TileConfigSchema } from "../lib/scene/Types";
 import { serializeEditorScene } from "../lib/editor/Serialization";
 import { OptionsUIManager } from "../lib/editor/ObjectOptions";
+import { UpdatableSprite } from "../lib/GenericHelpers";
 
 class CameraController extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -68,6 +69,7 @@ class GridRenderer extends Phoenix.Component {
         this.gridHelper?.position.set(
             Math.floor(this.transform.position.x / 32) * 32 + 16,
             Math.floor(this.transform.position.y / 32) * 32 + 16,
+            0
         )
     }
 
@@ -111,12 +113,6 @@ class SelectedPaintTileIndicator extends Phoenix.Component {
             Math.cos(this.rotation * (Math.PI / 180) - (Math.PI / 2)) * 16 + this.px
         this.transform.position.y = 
             Math.sin(this.rotation * (Math.PI / 180) - (Math.PI / 2)) * 16 + this.py
-    }
-}
-
-class UpdatableSprite extends Phoenix.Sprite {
-    public updateSprite(newSprite: string) {
-        this.texture = this.loadTexture(newSprite)
     }
 }
 

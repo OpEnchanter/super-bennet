@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/three": "^0.185.1"
+    "@types/three": "^0.184.1"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
@@ -20,6 +20,6 @@
     "planck": "^1.5.0",
     "three": "^0.185.1",
     "vite": "^8.1.5",
-    "vite-plugin-glsl": "^1.6.0"
+    "vite-plugin-glsl": "^1.6.1"
   }
 }
