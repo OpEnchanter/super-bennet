@@ -120,7 +120,7 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
                     position.y * 32
                 ),
                 0,
-                new Phoenix.Vector2(32, 32)
+                new Phoenix.Vector2(48, 32)
             ),
             new Phoenix.AnimatedSprite({"walking": [
                 "assets/tiles/enemy/animation/walking/1.png",
@@ -130,9 +130,12 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
                 "assets/tiles/enemy/animation/death/2.png",
                 "assets/tiles/enemy/animation/death/3.png",
                 "assets/tiles/enemy/animation/death/4.png",
-                "assets/tiles/enemy/animation/death/5.png"
-            ], "dead": [
                 "assets/tiles/enemy/animation/death/5.png",
+                "assets/tiles/enemy/animation/death/6.png",
+                "assets/tiles/enemy/animation/death/7.png",
+                "assets/tiles/enemy/animation/death/8.png"
+            ], "dead": [
+                "assets/tiles/enemy/animation/death/8.png",
             ]}),
             new Phoenix.BoxCollider(new Phoenix.Vector2(32, 32)),
             new Phoenix.Rigidbody(1, 1, false, true),

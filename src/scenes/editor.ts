@@ -383,7 +383,10 @@ export class Scene extends Phoenix.Scene {
             new Phoenix.Button(() => {
                 sceneManipulationHandler.setTilePlaceTimeout(10);
             }),
-            new Phoenix.UIRenderer(1)
+            new Phoenix.UIRenderer(1),
+            new class Test extends Phoenix.Component { public override onDestroyed(): void {
+                console.log("DESTROY")
+            } }
         )
 
         const exitButton = app.createObject(

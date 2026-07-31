@@ -51,6 +51,9 @@ export class OptionsUIManager extends Phoenix.Component {
             child.onDestroyed();
         }
 
+        this.parent.children.length = 0;
+        this.parent.childrenRemovalBuffer.length = 0;
+
         if (!this.selectedObject || !this.optionsOpen.value) {
             this.targetY = -window.innerHeight / 2 - 128 - 16;
             return;
@@ -157,7 +160,7 @@ export class OptionsUIManager extends Phoenix.Component {
                     new Phoenix.UIRenderer(2)
                 ))
 
-                if (settings.type = "dynamicsDropdown") {
+                if (settings.type === "dynamicsDropdown") {
                     this.parent.addChild(this.parent.app.createObject(
                         new Phoenix.Transform(
                             new Phoenix.Vector2(

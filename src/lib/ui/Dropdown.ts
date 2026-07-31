@@ -65,7 +65,8 @@ export class Dropdown extends Phoenix.Component {
 
         mesh.position.set(
             this.transform.globalPosition.x,
-            this.transform.globalPosition.y
+            this.transform.globalPosition.y,
+            3
         )
 
         this.buttonMesh = mesh;
@@ -100,7 +101,8 @@ export class Dropdown extends Phoenix.Component {
 
         dropdownMesh.position.set(
             this.transform.globalPosition.x, 
-            this.transform.globalPosition.y - this.transform.scale.y / 2 - dropdownHeight / 2 - dropdownMargin
+            this.transform.globalPosition.y - this.transform.scale.y / 2 - dropdownHeight / 2 - dropdownMargin,
+            3
         )
 
         dropdownMesh.visible = false;

@@ -1,6 +1,7 @@
 import * as Phoenix from "phoenix";
 import { Switch } from "../lib/ui/Switch";
 import { LevelLoader } from "../lib/scene/Loader";
+import * as THREE from "three";
 
 class ButtonHoverAnimator extends Phoenix.Component {
     transform: Phoenix.Transform | undefined;
@@ -105,25 +106,42 @@ export class Scene extends Phoenix.Scene {
         const ctx = canvas.getContext("2d");
 
         const gradient = ctx!.createLinearGradient(0,0,500,0);
-        gradient?.addColorStop(0, "#000000ac");
-        gradient?.addColorStop(1, "#00000000");
+        gradient?.addColorStop(0, "#262b44");
+        gradient?.addColorStop(0.75, "transparent");
         ctx!.fillStyle = gradient;
-        ctx?.fillRect(0, 0, 500, 1)
+        ctx?.fillRect(0, 0, 500, 1);
+
+        // Convert canvas to linear
+        const imageData = ctx!.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            data[i]     = Math.pow(data[i]! / 255, 2.2) * 255;
+            data[i+1]   = Math.pow(data[i+1]! / 255, 2.2) * 255;
+            data[i+2]   = Math.pow(data[i+2]! / 255, 2.2) * 255;
+        }
+
+        ctx!.putImageData(imageData, 0, 0);
+
+        const sprite = new Phoenix.CanvasSprite(canvas);
+        sprite.texture!.colorSpace = THREE.LinearSRGBColorSpace;
+        sprite.texture!.premultiplyAlpha = false;
+        sprite.texture!.needsUpdate = true;
 
         app.addObject(app.createObject(
             new Phoenix.Transform(
                 new Phoenix.Vector2(
-                    (window.innerWidth / -2) + 250,
+                    (window.innerWidth / -2) + 500,
                     0
                 ),
                 0,
                 new Phoenix.Vector2(
-                    500,
+                    1000,
                     window.innerHeight
                 )
             ),
 
-            new Phoenix.CanvasSprite(canvas),
+            sprite,
             new Phoenix.UIRenderer(0)
         ))
 

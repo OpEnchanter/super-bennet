@@ -82,9 +82,6 @@ export class Enemy extends Phoenix.Component {
             new Phoenix.Vector2(0.33, 0.6),
             true
         )) && !this.isDead) {
-            this.player.plBody?.setLinearVelocity(
-                {"x": this.player.plBody.getLinearVelocity().x, "y": 8}
-            )
             this.isDead = true;
 
             this.parent?.app.plWorld.destroyBody(this.parent!.plBody!);
@@ -95,7 +92,12 @@ export class Enemy extends Phoenix.Component {
 
         if (this.isDead) {
             this.removalTimeout--;
-            if (Math.floor(this.sprite!.t / 5) > 4) this.sprite?.setAnimation("dead");
+            if (Math.floor(this.sprite!.t / 5) === 2) {
+                this.player.plBody?.setLinearVelocity(
+                    {"x": this.player.plBody.getLinearVelocity().x, "y": 8}
+                )
+            };
+            if (Math.floor(this.sprite!.t / 5) > 7) this.sprite?.setAnimation("dead");
         }
 
         // Only continue to movement functions if enemy is still alive

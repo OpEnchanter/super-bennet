@@ -269,7 +269,7 @@ export class Scene extends Phoenix.Scene {
             player: player
         });
 
-        loader.addLevel('{"objects":[{"type":"tileset","data":{"position":{"x":-2,"y":-1},"scale":{"x":5,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":4,"y":-1},"scale":{"x":5,"y":2},"sprite":"grass_bricks","hasCollision":true}},{"type":"tileset","data":{"position":{"x":4,"y":-3},"scale":{"x":5,"y":1},"sprite":"grass_bricks","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":6,"y":2},"name":"lucky_block","options":{"contents":"enemy"}}}]}');
+        loader.addLevel('{"objects":[{"type":"tileset","data":{"position":{"x":-3,"y":-1},"scale":{"x":7,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":1,"y":1},"name":"enemy","options":{}}}]}');
 
         app.addObject(app.createObject(
             new Phoenix.Transform(

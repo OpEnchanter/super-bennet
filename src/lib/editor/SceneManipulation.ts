@@ -473,7 +473,9 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
         if (this.parent?.app.getKey("Backspace") && this.selectedObject) {
             (this.selectedObject.gameObject as Phoenix.GameObject).onDestroyed();
-            this.objects = this.objects.filter(object => object !== this.selectedObject);
+            const filtered = this.objects.filter(object => object !== this.selectedObject);
+            this.objects.length = 0;
+            this.objects.push(...filtered);
             this.selectedObject = undefined;
             this.updateObjectMap();
             this.updateSelectedObject();
@@ -498,7 +500,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
             const objectMapKey = `${mpWorldSpace.x},${mpWorldSpace.y}`;
 
-            if (this.objectMap.get(objectMapKey)) {
+            if (this.objectMap.get(objectMapKey) && tilePlaceTimeout < 0) {
                 this.selectedObject = this.objectMap.get(objectMapKey);
                 
                 tileUpdateTimeout = 10;
@@ -628,6 +630,7 @@ export class SceneManipulationHandler extends Phoenix.Component {
 
     setTilePlaceTimeout(time: number) {
         tilePlaceTimeout = time;
+        tileUpdateTimeout = time;
     }
 
     updateSelectedObject() {
