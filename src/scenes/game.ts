@@ -1,7 +1,10 @@
 import * as Phoenix from "phoenix";
 import { LevelLoader } from "../lib/scene/Loader";
-import * as THREE from "three";
 import { TextDisplay } from "../lib/dialog/TextDisplay";
+import LevelData from "./levels.json";
+import type { LoadableObject } from "../lib/scene/Types";
+
+const levelData = LevelData as {levels:{objects:LoadableObject[]}[]};
 
 export class PlayerController extends Phoenix.Component {
     rigidbody: Phoenix.Rigidbody | undefined = undefined;
@@ -281,7 +284,9 @@ export class Scene extends Phoenix.Scene {
             textDisplay: textDisplay
         });
 
-        loader.addLevel('{"objects":[{"type":"tileset","data":{"position":{"x":-3,"y":-1},"scale":{"x":7,"y":3},"sprite":"grass_bricks","hasCollision":true}},{"type":"dynamic","data":{"position":{"x":1,"y":1},"name":"enemy","options":{}}}]}');
+        for (const level of levelData.levels) {
+            loader.addLevel(level);
+        }
 
         app.addObject(app.createObject(
             new Phoenix.Transform(

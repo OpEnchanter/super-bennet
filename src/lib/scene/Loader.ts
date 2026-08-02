@@ -13,6 +13,9 @@ import { UpdatableSprite } from "../GenericHelpers";
 import { NextLevelTrigger } from "./components/NextLevelTrigger";
 import { LuckyBlock } from "./components/LuckyBlock";
 import { Enemy } from "./components/Enemy";
+import { TextTrigger } from "./components/TextTrigger";
+import { FullScreenQuad } from "three/examples/jsm/Addons.js";
+import { FullscreenTextDisplay } from "../dialog/TextDisplay";
 
 const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = {
     "flower_blue": (app, position, options, globals) => {
@@ -105,11 +108,10 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
                 ),
                 0,
                 new Phoenix.Vector2(
-                    32, 32
+                    0, 0
                 )
             ),
-            new Phoenix.Sprite("assets/tiles/props/sign.png"),
-            new Phoenix.Renderer(0)
+            new TextTrigger(globals.player, globals.textDisplay, options.get("text")!)
         ))
     },
     "enemy": (app, position, options, globals) => {
@@ -142,6 +144,16 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
             new Enemy(1, globals.player),
             new Phoenix.Renderer(0)
         ))
+    },
+    "show_text_fullscreen": (app, position, options, globals) => {
+        return (app.createObject(
+            new Phoenix.Transform(
+                new Phoenix.Vector2(0,0),
+                0,
+                new Phoenix.Vector2(0,0),
+            ),
+            new FullscreenTextDisplay(32, globals.levelManager, options.get("text")!)
+        ))
     }
 }
 export const dynamicTileFunctionMap: Map<string, (app: Phoenix.App, position: Phoenix.Vector2, options: Map<string, string>, globals: Record<string, any>)=>Phoenix.GameObject> = new Map(Object.entries(dynamicTileFunctions))
@@ -159,7 +171,7 @@ export class LevelLoader extends Phoenix.Component {
 
     globals: Record<string, any>;
 
-    levels: string[] = [];
+    levels: {objects:LoadableObject[]}[] = [];
     curLevel: number = 0;
 
     constructor(globals: Record<string, any>) {
@@ -169,7 +181,8 @@ export class LevelLoader extends Phoenix.Component {
 
     public override onInitialized(): void {
         this.app! = this.parent!.app;
-        this.loadFromString(this.levels[this.curLevel]!);
+        console.log(this.levels[0]!);
+        this.loadFromJson(this.levels[this.curLevel]!);
     }
 
     public override onDestroyed(): void {
@@ -191,20 +204,20 @@ export class LevelLoader extends Phoenix.Component {
         this.loadFromJson(jsonObject);
     }
 
-    public addLevel(levelString: string) {
-        this.levels.push(levelString);
+    public addLevel(level: {objects:LoadableObject[]}) {
+        this.levels.push(level);
     }
 
     public nextLevel() {
         this.curLevel++;
         this.curLevel = this.curLevel % this.levels.length;
         console.log(this.curLevel);
-        this.loadFromString(this.levels[this.curLevel]!);
+        this.loadFromJson(this.levels[this.curLevel]!);
     }
 
     public gotoLevel(id: number) {
         this.curLevel = id;
-        this.loadFromString(this.levels[this.curLevel]!);
+        this.loadFromJson(this.levels[this.curLevel]!);
     }
 
     public loadFromJson(jsonObject: JSONWorld) {
@@ -505,6 +518,11 @@ export class LevelLoader extends Phoenix.Component {
             this.levelBody!.createFixture({shape: rightEdge})
 
             this.levelBody!.createFixture({shape:volume})
+
+            if (this.globals.player) {
+                const pb = (this.globals.player as Phoenix.GameObject).plBody;
+                pb?.setPosition({"x":0,"y":0});
+            }
         }
     }
 }
