@@ -152,7 +152,7 @@ const dynamicTileFunctions: Record<string, (app: Phoenix.App, position: Phoenix.
                 0,
                 new Phoenix.Vector2(0,0),
             ),
-            new FullscreenTextDisplay(32, globals.levelManager, options.get("text")!)
+            new FullscreenTextDisplay(128, globals.levelManager, options.get("text")!)
         ))
     }
 }
