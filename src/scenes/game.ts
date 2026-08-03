@@ -253,7 +253,7 @@ export class Scene extends Phoenix.Scene {
 
             new Phoenix.Rigidbody(20, 1, false, true),
 
-            new PlayerController(0.7, 0.3, 140)
+            new PlayerController(0.7, 0.3, 200)
         );
 
         const camera = app.createObject(
