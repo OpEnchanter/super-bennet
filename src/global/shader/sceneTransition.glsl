@@ -20,8 +20,8 @@ void main() {
     p1 = linearToSRGB(p1);
 
     float yCoord = round(fragTexCoord.y / 0.05) * 0.05;
-    float startLine = fragTexCoord.x + sin((-time / 40.0 + yCoord) * 5.0) / 25.0;
-    float endLine = fragTexCoord.x + sin((time / 40.0 + yCoord) * 5.0) / 25.0;
+    float startLine = fragTexCoord.x - yCoord / 8.0;
+    float endLine = fragTexCoord.x - yCoord / 8.0;
 
     if (
         startLine > coverStart && 

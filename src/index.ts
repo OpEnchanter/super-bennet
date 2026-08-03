@@ -15,8 +15,8 @@ const app: Phoenix.App = new Phoenix.App({
         vertexShader: Phoenix.DefaultVertexShader,
         fragmentShader: sceneTransitionShader,
         uniforms: {
-            coverStart: { value: -0.1 },
-            coverEnd: { value: -0.1 }
+            coverStart: { value: -0.5 },
+            coverEnd: { value: -0.5 }
         }
     }
 })
@@ -27,13 +27,13 @@ let isFirstScene = true;
 
 app.preSceneLoadCallback = () => {
     if (isFirstScene) return;
-    app.screenSpaceShader.uniforms.coverStart!.value = -0.1;
-    app.screenSpaceShader.uniforms.coverEnd!.value = -0.1;
+    app.screenSpaceShader.uniforms.coverStart!.value = -0.5;
+    app.screenSpaceShader.uniforms.coverEnd!.value = -0.5;
     if (currentAnimation) currentAnimation.kill();
 
     currentAnimation = gsap.to(app.screenSpaceShader.uniforms.coverEnd!, {
-        value: 1.1,
-        duration: 1,
+        value: 1.5,
+        duration: 0.7,
         ease: "power2.out"
     });
 }
@@ -41,16 +41,16 @@ app.preSceneLoadCallback = () => {
 app.postSceneLoadCallback = () => {
     if (isFirstScene) return;
     setTimeout(() => {
-        app.screenSpaceShader.uniforms.coverStart!.value = -0.1;
+        app.screenSpaceShader.uniforms.coverStart!.value = -0.5;
         app.screenSpaceShader.uniforms.coverEnd!.value = 1.1;
         if (currentAnimation) currentAnimation.kill()
 
         currentAnimation = gsap.to(app.screenSpaceShader.uniforms.coverStart!, {
-            value: 1.1,
-            duration: 1,
+            value: 1.5,
+            duration: 0.7,
             ease: "power2.out"
         });
-    }, 250)
+    }, 0)
 }
 
 app.plWorld.setGravity(pl.Vec2(0, -16))
@@ -63,5 +63,5 @@ app.loadScene("title")
 
 setTimeout(()=>{
     isFirstScene = false;
-    app.sceneLoadTimeout = 750;
+    app.sceneLoadTimeout = 250;
 }, 15)
