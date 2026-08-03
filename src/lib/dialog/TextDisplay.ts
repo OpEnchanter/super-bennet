@@ -386,6 +386,8 @@ export class FullscreenTextDisplay extends Phoenix.Component {
 
     text: string;
 
+    charTimes: number[] = [];
+
     constructor(margin: number, levelManager: LevelLoader, text: string) {
         super();
         this.margin = margin;
@@ -408,15 +410,25 @@ export class FullscreenTextDisplay extends Phoenix.Component {
         ctx!.fillStyle = "black"
         ctx!.textBaseline = "top";
 
+        this.charTimes = [];
+
         const maxWidth = this.textAreaSize!.x
 
         let curPageLines: string[] = [];
         let currentLine = "";
+
         for (const paragraph of text.split("\n")) {
             let words = paragraph.split(" ");
             for (const word of words) {
+                // Remove all of the formatting symbols from the text
+                const rawWord = word
+                    .replaceAll("/r", "") // Red formatting
+                    .replaceAll("/g", "") // Green formatting
+                    .replaceAll("/b", "") // Blue formatting
+                    .replaceAll("/s", "") // Shaky formatting
+
                 // Move text to a new line if its going to go off screen
-                if (ctx!.measureText(`${currentLine} ${word}`).width > maxWidth) {
+                if (ctx!.measureText(`${currentLine} ${rawWord}`).width > maxWidth) {
                     curPageLines.push(currentLine);
                     currentLine = "";
                 }
@@ -496,24 +508,113 @@ export class FullscreenTextDisplay extends Phoenix.Component {
 
         ctx!.font = `${this.fontSize}px PixelTimesNewRoman`;
         ctx!.fillStyle = "#c0cbdc";
-        ctx!.textBaseline = "top";
+        ctx!.textBaseline = "middle";
 
         const maxWidth = this.textAreaSize!.x
 
+        const colors = {
+            "white": [192, 203, 220],
+            "red": [255, 195, 215],
+            "green": [195, 255, 215],
+            "blue": [195, 215, 255]
+        }
+
         let lineIndex = 0;
+        let charsWritten = 0;
+        let xPos = 0;
+        let yOffset = this.fontSize / 2;
+        let subStrFormatting = [];
         for (const blob of text.split("\n")) {
             let subStr = "";
             let words = blob.split(" ");
             for (const word of words) {
-                if (ctx!.measureText(`${subStr} ${word}`).width > maxWidth) {
-                    ctx?.fillText(subStr, 0, (lineIndex * this.lineHeight));
-                    lineIndex++;
-                    subStr = "";
+                // Remove all of the formatting symbols from the text
+                const text = word
+                    .replaceAll("/r", "") // Red formatting
+                    .replaceAll("/g", "") // Green formatting
+                    .replaceAll("/b", "") // Blue formatting
+                    .replaceAll("/s", "") // Shaky formatting
+
+                const formattingCode = word.slice(0, 2);
+
+                for (let i = 0; i < text.length + 1; i++) {
+                    subStrFormatting.push(formattingCode);
                 }
-                subStr = `${subStr} ${word}`;
+
+                if (ctx!.measureText(`${subStr} ${text}`).width > maxWidth) {
+                    let cidx = 0;
+                    for (const c of subStr) {
+                        const fstring = subStrFormatting[cidx];
+                        let color = colors.white;
+
+                        if (fstring === "/r") color = colors.red;
+                        if (fstring === "/g") color = colors.green;
+                        if (fstring === "/b") color = colors.blue;
+
+                        if (!this.charTimes[charsWritten]) {
+                            this.charTimes[charsWritten] = this.parent!.app.time;
+                        }
+
+                        const charFontSize = 
+                            this.fontSize +
+                            Math.min(0, this.parent!.app.time - (this.charTimes[charsWritten]! + 10))
+
+                        ctx!.font = `${charFontSize}px PixelTimesNewRoman`;
+                        const cc = Math.min(0, this.parent!.app.time - (this.charTimes[charsWritten]! + 10)) * -20;
+                        ctx!.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]! + cc})`
+
+                        ctx?.fillText(c, xPos, (lineIndex * this.lineHeight) + yOffset);
+                        charsWritten++;
+                        xPos += ctx!.measureText(c).width;
+                        cidx++;
+                    }
+                    lineIndex++;
+                    xPos = 0;
+                    subStr = "";
+                    subStrFormatting = [];
+                }
+                subStr = `${subStr} ${text}`;
             }
-            (subStr !== "" && ctx?.fillText(subStr, 0, (lineIndex * this.lineHeight)));
+            if (subStr !== "") {
+                let cidx = 0;
+                for (const c of subStr) {
+                    const fstring = subStrFormatting[cidx];
+                    let color = colors.white;
+
+                    if (fstring === "/r") color = colors.red;
+                    if (fstring === "/g") color = colors.green;
+                    if (fstring === "/b") color = colors.blue;
+
+                    if (!this.charTimes[charsWritten]) {
+                        this.charTimes[charsWritten] = this.parent!.app.time;
+                    }
+
+                    const charFontSize = 
+                        this.fontSize +
+                        Math.min(0, this.parent!.app.time - (this.charTimes[charsWritten]! + 10))
+
+                    ctx!.font = `${charFontSize}px PixelTimesNewRoman`;
+                    const cc = Math.min(0, this.parent!.app.time - (this.charTimes[charsWritten]! + 10)) * -20;
+                    ctx!.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]! + cc})`;
+
+                    let cx = xPos;
+                    let cy = (lineIndex * this.lineHeight) + yOffset;
+
+                    if (fstring === "/s") { 
+                        cx += (Math.random() - 0.5) * 2; 
+                        cy += (Math.random() - 0.5) * 2
+                    }
+
+                    ctx?.fillText(c, cx, cy);
+                    charsWritten++;
+                    xPos += ctx!.measureText(c).width;
+                    cidx++;
+                }
+            }
+            xPos = 0;
             lineIndex++;
+            subStr = "";
+            subStrFormatting = [];
         }
         ((this.textMesh?.material as THREE.ShaderMaterial).uniforms.uTex?.value as THREE.CanvasTexture).needsUpdate = true;
     }
@@ -549,18 +650,38 @@ export class FullscreenTextDisplay extends Phoenix.Component {
         // Load the mesh that will display text
         this.loadTextMesh();
 
-        this.setText(this.text);
+        const text = this.text.replaceAll(/\u2026/g, '...')
+
+        this.setText(text);
     }
 
     public override onUpdate(): void {
-        const writeSpeed = this.parent?.app.getKey("shift") ? 2 : 1;
+        let writeSpeed = this.parent?.app.getKey("shift") ? 2 : 0.5;
+
+        const curChar = this.pages[this.pageIndex]![Math.round(this.charIndex-1)];
+
+        const preTwoChar = this.pages[this.pageIndex]!.slice(this.charIndex-3, this.charIndex-1);
+        const preThreeChar = this.pages[this.pageIndex]!.slice(this.charIndex-4, this.charIndex-1);
+
+        if (curChar === "." || curChar === "!" || curChar === "?") {
+            // Keep the speed the same if the period is denoting a pronoun
+            if (preTwoChar !== "Mr" && preThreeChar !== "Mrs") {
+                writeSpeed /= 8
+            }
+        } else if (curChar === ",") {
+            writeSpeed /= 2
+        }
+
         this.charIndex += writeSpeed;
-        if (this.pageIndex < this.pages.length && this.charIndex <= this.pages[this.pageIndex]!.length) {
+        if (this.pageIndex < this.pages.length) {
             this.updateTextMesh(this.pages[this.pageIndex]!.slice(0, Math.round(this.charIndex)));
-        } else if (this.parent?.app.getKey(" ")) {
+        } 
+        
+        if (this.parent?.app.getKey(" ") && this.charIndex >= this.pages[this.pageIndex]!.length) {
             if (this.pageIndex < this.pages.length - 1) {
                 this.pageIndex++;
                 this.charIndex = 0;
+                this.charTimes = [];
             } else {
                 this.levelManager.nextLevel();
             }
